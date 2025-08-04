@@ -1,0 +1,3397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Media Geometri Transformasi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.geogebra.org/apps/deployggb.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --baby-blue: #89CFF0;
+            --baby-blue-dark: #6ba8d1;
+            --white: #ffffff;
+            --gray-light: #f5f5f5;
+            --text-dark: #333333;
+            --accent-color: #4CAF50;
+            --accent-color-dark: #45a049;
+            --card-bg: #e0f2f7;
+            --card-border: #c0e0e8;
+            --popup-header-bg: #6ba8d1;
+            --popup-header-text: #ffffff;
+            --solution-bg: #e6ffe6;
+            --solution-border: #4CAF50;
+            --guide-button-bg: #FFD700;
+            --guide-button-hover: #E6BE00;
+            --back-button-bg: #f44336;
+            --back-button-hover: #d32f2f;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1e40af;
+            --secondary-gray: #e2e8f0;
+        }
+
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+        @layer base {
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                @apply bg-[var(--baby-blue)] text-[var(--text-dark)] leading-relaxed text-xs;
+            }
+            h1, h2, h3, h4 {
+                @apply text-[var(--baby-blue-dark)];
+            }
+            @screen md {
+                body {
+                    font-size: 0.875rem;
+                }
+                h1 { @apply text-3xl; }
+                h2 { @apply text-2xl; }
+                h3 { @apply text-xl; }
+                h4 { @apply text-lg; }
+            }
+            @screen lg {
+                h1 { @apply text-4xl; }
+                h2 { @apply text-3xl; }
+            }
+        }
+
+        @keyframes float1 {
+            0% { transform: translate(0, 0) rotate(45deg); }
+            50% { transform: translate(20px, 20px) rotate(50deg); }
+            100% { transform: translate(0, 0) rotate(45deg); }
+        }
+
+        @keyframes float2 {
+            0% { transform: translate(0, 0) rotate(-30deg); }
+            50% { transform: translate(-20px, -20px) rotate(-35deg); }
+            100% { transform: translate(0, 0) rotate(-30deg); }
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: rotate(45deg);
+            z-index: 0;
+            animation: float1 10s infinite ease-in-out;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: rotate(-30deg);
+            z-index: 0;
+            animation: float2 12s infinite ease-in-out;
+        }
+
+        @keyframes moveShape1 {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+            25% { transform: translate(50px, -20px) rotate(45deg); opacity: 0.9; }
+            50% { transform: translate(0, 0) rotate(90deg); opacity: 0.8; }
+            75% { transform: translate(-50px, 20px) rotate(135deg); opacity: 0.9; }
+            100% { transform: translate(0, 0) rotate(180deg); opacity: 0.8; }
+        }
+
+        @keyframes moveShape2 {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 0.7; }
+            25% { transform: translate(-30px, 40px) rotate(-30deg); opacity: 0.8; }
+            50% { transform: translate(0, 0) rotate(-60deg); opacity: 0.7; }
+            75% { transform: translate(30px, -40px) rotate(-90deg); opacity: 0.8; }
+            100% { transform: translate(0, 0) rotate(-120deg); opacity: 0.7; }
+        }
+
+        @keyframes moveShape3 {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 0.6; }
+            25% { transform: translate(20px, 30px) rotate(60deg); opacity: 0.7; }
+            50% { transform: translate(0, 0) rotate(120deg); opacity: 0.6; }
+            75% { transform: translate(-20px, -30px) rotate(180deg); opacity: 0.7; }
+            100% { transform: translate(0, 0) rotate(240deg); opacity: 0.6; }
+        }
+
+        .geometric-shape {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.15);
+            z-index: 1;
+            filter: blur(1px);
+        }
+
+        .shape-circle {
+            border-radius: 50%;
+        }
+
+        .shape-square {
+        }
+
+        .shape-triangle {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid rgba(255, 255, 255, 0.15);
+            background-color: transparent;
+        }
+
+        .shape-1 {
+            width: 80px;
+            height: 80px;
+            top: 15%;
+            left: 10%;
+            animation: moveShape1 15s infinite ease-in-out alternate;
+        }
+
+        .shape-2 {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            right: 15%;
+            animation: moveShape2 18s infinite ease-in-out alternate-reverse;
+        }
+
+        .shape-3 {
+            width: 60px;
+            height: 60px;
+            top: 50%;
+            left: 5%;
+            animation: moveShape3 12s infinite ease-in-out;
+        }
+
+        .shape-4 {
+            width: 70px;
+            height: 70px;
+            top: 30%;
+            right: 8%;
+            animation: moveShape1 16s infinite ease-in-out reverse;
+        }
+
+        .shape-5 {
+            width: 90px;
+            height: 90px;
+            bottom: 10%;
+            left: 20%;
+            animation: moveShape2 20s infinite ease-in-out;
+        }
+
+        .shape-6 {
+            width: 75px;
+            height: 75px;
+            top: 5%;
+            right: 25%;
+            animation: moveShape3 17s infinite ease-in-out alternate;
+            border-radius: 50%;
+        }
+
+        .shape-7 {
+            width: 95px;
+            height: 95px;
+            bottom: 5%;
+            right: 5%;
+            animation: moveShape1 19s infinite ease-in-out;
+        }
+
+        .shape-8 {
+            width: 50px;
+            height: 50px;
+            top: 70%;
+            left: 30%;
+            animation: moveShape2 14s infinite ease-in-out reverse;
+            border-radius: 50%;
+        }
+
+        .shape-9 {
+            width: 85px;
+            height: 85px;
+            top: 20%;
+            left: 40%;
+            animation: moveShape3 16s infinite ease-in-out alternate-reverse;
+        }
+
+        .shape-10 {
+            width: 65px;
+            height: 65px;
+            bottom: 30%;
+            left: 45%;
+            animation: moveShape1 13s infinite ease-in-out;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .geometric-shape {
+                opacity: 0.1;
+                filter: blur(0.5px);
+            }
+            .shape-1, .shape-2, .shape-3, .shape-4, .shape-5,
+            .shape-6, .shape-7, .shape-8, .shape-9, .shape-10 {
+                width: 40px;
+                height: 40px;
+            }
+            .shape-triangle {
+                border-left: 20px solid transparent;
+                border-right: 20px solid transparent;
+                border-bottom: 40px solid rgba(255, 255, 255, 0.1);
+            }
+            .shape-1 { top: 10%; left: 5%; }
+            .shape-2 { bottom: 15%; right: 5%; }
+            .shape-3 { top: 40%; left: 2%; }
+            .shape-4 { top: 20%; right: 2%; }
+            .shape-5 { bottom: 5%; left: 10%; }
+            .shape-6 { top: 8%; right: 15%; }
+            .shape-7 { bottom: 8%; right: 2%; }
+            .shape-8 { top: 60%; left: 15%; }
+            .shape-9 { top: 12%; left: 25%; }
+            .shape-10 { bottom: 20%; left: 25%; }
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+
+        .popup-overlay {
+            display: none;
+        }
+        .popup-overlay.flex {
+            display: flex;
+        }
+
+        .solution-container .solution-text {
+            display: none;
+        }
+        .solution-container .solution-text.show {
+            display: block;
+        }
+
+        .geogebra-container {
+            @apply bg-white p-2 md:p-4 rounded-lg shadow-lg;
+        }
+
+        .coordinate-input-group {
+            @apply flex flex-col md:flex-row gap-2 mb-2;
+        }
+
+        .coordinate-input-column {
+            @apply flex-1 flex flex-col gap-1 p-2 border border-gray-200 rounded-md bg-gray-50;
+        }
+
+        .coordinate-input-label {
+            @apply font-semibold text-primary-blue text-xs md:text-sm;
+        }
+
+        .coordinate-input {
+            @apply p-1 border border-gray-300 rounded-md text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-primary-blue;
+        }
+
+        .button-group {
+            @apply flex flex-row gap-1 mt-1;
+        }
+
+        .action-btn {
+            @apply flex-1 py-1 px-2 rounded-md font-semibold text-white transition-all duration-300 text-xs;
+        }
+
+        .show-points-btn {
+            @apply bg-primary-blue hover:bg-primary-blue-dark;
+        }
+
+        .reset-points-btn {
+            @apply bg-red-500 hover:bg-red-600;
+        }
+
+        #ggb-applet {
+            @apply w-full h-40 md:h-64 border border-gray-300 rounded-md shadow-inner;
+        }
+
+        .transformation-buttons-grid {
+            @apply grid grid-cols-2 md:grid-cols-4 gap-2 mb-4;
+        }
+
+        .transformation-buttons-vertical {
+            @apply flex flex-col gap-2;
+        }
+
+        .transformation-btn {
+            @apply flex flex-col items-center justify-center p-2 rounded-lg font-semibold text-white transition-all duration-300 shadow-md;
+            min-height: 60px;
+            text-align: center;
+        }
+        .transformation-btn i {
+            @apply text-xl mb-0.5;
+        }
+        .transformation-btn span {
+            @apply text-xs;
+        }
+
+        .transformation-btn.rotasi {
+            @apply bg-blue-500 hover:bg-blue-600;
+        }
+        .transformation-btn.refleksi {
+            @apply bg-green-500 hover:bg-green-600;
+        }
+        .transformation-btn.translasi {
+            @apply bg-purple-500 hover:bg-purple-600;
+        }
+        .transformation-btn.dilatasi {
+            @apply bg-orange-500 hover:bg-orange-600;
+        }
+
+        .transform-popup-content {
+            @apply bg-white p-2 rounded-lg shadow-xl max-w-[90%] sm:max-w-xs w-[90%] flex flex-col gap-1;
+        }
+
+        .transform-popup-header {
+            @apply text-sm md:text-base font-bold text-primary-blue text-center;
+        }
+
+        .transform-popup-close {
+            @apply absolute top-0.5 right-0.5 text-gray-600 text-lg cursor-pointer hover:text-gray-800;
+        }
+
+        .transform-input-label {
+            @apply font-semibold text-gray-700 text-xs;
+        }
+
+        .transform-input {
+            @apply p-0.5 border border-gray-300 rounded-md text-2xs focus:outline-none focus:ring-2 focus:ring-primary-blue;
+        }
+
+        .transform-apply-btn {
+            @apply bg-primary-blue text-white py-1 rounded-md font-semibold hover:bg-primary-blue-dark transition-colors duration-300 text-2xs;
+        }
+
+        .refleksi-option-btn {
+            @apply bg-primary-blue text-white py-1 rounded-md font-semibold hover:bg-primary-blue-dark transition-colors duration-300 text-2xs;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-image {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 150px;
+            height: auto;
+            opacity: 0.7;
+            z-index: 5;
+            animation: slideInRight 1.5s ease-out forwards;
+        }
+
+        @keyframes slideInRight {
+            0% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 0.7;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-image {
+                width: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 10px;
+            }
+        }
+
+        header .flex.items-center {
+            gap: 0.5rem;
+        }
+        header img {
+            height: 1.5rem;
+        }
+        header .text-lg {
+            font-size: 0.875rem;
+        }
+        .nav-links li a {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        .nav-links i {
+            margin-right: 0.25rem;
+        }
+
+        .hero h1 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .hero p {
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .hero .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+        .hero .btn-guide {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .section-header .header-buttons .btn-back,
+        .section-header .header-buttons .btn-guide {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.625rem;
+        }
+
+        .materi-section .bg-white {
+            padding: 0.75rem;
+        }
+        .materi-section h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .materi-section p, .materi-section ul li {
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .materi-section .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+        .material-card {
+            padding: 0.75rem;
+        }
+        .material-card h4 {
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        .material-card p {
+            font-size: 0.625rem;
+            margin-bottom: 0.75rem;
+        }
+        .material-card .learn-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.625rem;
+        }
+
+        footer ul li a {
+            font-size: 1rem;
+            margin: 0 0.5rem;
+        }
+        footer p {
+            font-size: 0.625rem;
+        }
+
+        .popup-content {
+            padding: 0.75rem;
+        }
+        .popup-header h3 {
+            font-size: 1rem;
+        }
+        .popup-header .popup-close {
+            font-size: 1.5rem;
+        }
+        .popup-body p, .popup-body ul li, .popup-body table {
+            font-size: 0.75rem;
+        }
+        .popup-body h4 {
+            font-size: 0.875rem;
+        }
+        .popup-body .toggle-solution-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.625rem;
+        }
+        .popup-body .solution-container {
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .transformation-buttons-vertical {
+                @apply grid grid-cols-2 gap-1;
+            }
+            .transformation-btn {
+                min-height: 50px;
+                padding: 0.5rem;
+            }
+            .transformation-btn i {
+                @apply text-lg mb-0;
+            }
+            .transformation-btn span {
+                @apply text-2xs;
+            }
+        }
+
+        .transformation-buttons-vertical .transformation-btn {
+            min-height: unset;
+            height: 40px;
+            padding: 0 10px;
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+
+        .transformation-buttons-vertical .transformation-btn i {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        .transformation-buttons-vertical .transformation-btn span {
+            font-size: 0.75rem;
+        }
+
+        .transformation-btn.rotasi {
+            background-color: #3498db;
+            color: white;
+        }
+        .transformation-btn.rotasi:hover {
+            background-color: #2980b9;
+        }
+
+        .transformation-btn.refleksi {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .transformation-btn.refleksi:hover {
+            background-color: #27ae60;
+        }
+
+        .transformation-btn.translasi {
+            background-color: #9b59b6;
+            color: white;
+        }
+        .transformation-btn.translasi:hover {
+            background-color: #8e44ad;
+        }
+
+        .transformation-btn.dilatasi {
+            background-color: #e67e22;
+            color: white;
+        }
+        .transformation-btn.dilatasi:hover {
+            background-color: #d35400;
+        }
+
+        @media (max-width: 768px) {
+            .transformation-buttons-vertical {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .transformation-buttons-vertical .transformation-btn {
+                height: 35px;
+                padding: 0 8px;
+                font-size: 0.625rem;
+            }
+            .transformation-buttons-vertical .transformation-btn i {
+                font-size: 0.875rem;
+            }
+            .transformation-buttons-vertical .transformation-btn span {
+                font-size: 0.625rem;
+            }
+        }
+
+        .universal-popup-content {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.95);
+            transition: transform 0.2s ease-out;
+        }
+
+        .popup-overlay.flex .universal-popup-content {
+            transform: scale(1);
+        }
+
+        .universal-popup-header {
+            background-color: var(--primary-blue);
+            color: var(--popup-header-text);
+            padding: 15px 20px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .universal-popup-header h3 {
+            color: var(--popup-header-text);
+        }
+
+        .universal-popup-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--popup-header-text);
+            transition: color 0.2s ease-in-out;
+        }
+
+        .universal-popup-close:hover {
+            color: #e0e0e0;
+        }
+
+        .universal-popup-body {
+            padding: 20px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+
+        .universal-popup-body .transform-input-label {
+            font-size: 0.875rem;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .universal-popup-body .transform-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .universal-popup-body .transform-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .universal-popup-body .transform-apply-btn,
+        .universal-popup-body .refleksi-option-btn {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            margin-top: 10px;
+        }
+
+        .universal-popup-body .transform-apply-btn {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .universal-popup-body .transform-apply-btn:hover {
+            background-color: var(--primary-blue-dark);
+            transform: translateY(-1px);
+        }
+
+        .universal-popup-body .refleksi-option-btn {
+            background-color: #6c757d;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .universal-popup-body .refleksi-option-btn:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .universal-popup-content {
+                width: 95%;
+                max-width: 300px;
+                padding: 0;
+            }
+
+            .universal-popup-header {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+
+            .universal-popup-close {
+                font-size: 1.5rem;
+            }
+
+            .universal-popup-body {
+                padding: 15px;
+                font-size: 0.8rem;
+            }
+
+            .universal-popup-body .transform-input-label {
+                font-size: 0.75rem;
+            }
+
+            .universal-popup-body .transform-input {
+                padding: 8px;
+                font-size: 0.9rem;
+                margin-bottom: 10px;
+            }
+
+            .universal-popup-body .transform-apply-btn,
+            .universal-popup-body .refleksi-option-btn {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+                margin-top: 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #ggb-applet {
+                height: 250px;
+            }
+        }
+
+        .latihan-section {
+            background-color: var(--baby-blue);
+        }
+
+        .latihan-form {
+            background-color: var(--white);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .latihan-fieldset {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 1px solid var(--secondary-gray);
+            border-radius: 12px;
+            background-color: var(--gray-light);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .latihan-legend {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--primary-blue-dark);
+            padding: 0 10px;
+            background-color: var(--gray-light);
+            border-radius: 8px;
+            transform: translateY(-50%);
+            position: relative;
+            left: -10px;
+            width: fit-content;
+        }
+        .latihan-legend i {
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+        }
+
+        .latihan-question {
+            margin-bottom: 20px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .latihan-radio-label {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--secondary-gray);
+            background-color: var(--white);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .latihan-radio-label:hover {
+            background-color: #e6f7ff;
+            border-color: var(--primary-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .latihan-radio-label input[type="radio"] {
+            transform: scale(1.4);
+            cursor: pointer;
+            accent-color: var(--primary-blue);
+            min-width: 20px;
+            min-height: 20px;
+        }
+
+        .latihan-radio-label span {
+            font-size: 1rem;
+            color: var(--text-dark);
+            flex-grow: 1;
+        }
+
+        .latihan-submit-btn {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .latihan-submit-btn:hover {
+            background-color: var(--accent-color-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .latihan-result {
+            margin-top: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            min-height: 2.5rem;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .latihan-soal-section .section-header {
+                margin-bottom: 2rem;
+            }
+            .latihan-form {
+                padding: 15px;
+                border-radius: 12px;
+            }
+            .latihan-fieldset {
+                margin-bottom: 20px;
+                padding: 15px;
+                border-radius: 10px;
+            }
+            .latihan-legend {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+                gap: 10px;
+                padding: 0 8px;
+                left: -8px;
+            }
+            .latihan-legend i {
+                font-size: 1.2rem;
+            }
+            .latihan-question {
+                font-size: 0.8rem;
+                margin-bottom: 10px;
+                line-height: 1.5;
+            }
+            .latihan-radio-label {
+                padding: 8px 12px;
+                gap: 8px;
+                margin-bottom: 8px;
+                border-radius: 6px;
+            }
+            .latihan-radio-label input[type="radio"] {
+                transform: scale(1.0);
+                min-width: 16px;
+                min-height: 16px;
+            }
+            .latihan-radio-label span {
+                font-size: 0.75rem;
+            }
+            .latihan-submit-btn {
+                font-size: 1rem;
+                padding: 10px 15px;
+                border-radius: 6px;
+            }
+            .latihan-result {
+                margin-top: 15px;
+                font-size: 0.85rem;
+                min-height: 1.8rem;
+            }
+        }
+
+        .tim-pengembang-section {
+            background-color: var(--baby-blue);
+        }
+
+        .profile-card {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-blue);
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .profile-card h3 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary-blue-dark);
+            margin-bottom: 5px;
+        }
+
+        .profile-card p {
+            font-size: 0.875rem;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .profile-card .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .profile-card .social-links a {
+            color: var(--primary-blue);
+            font-size: 1rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .profile-card .social-links a:hover {
+            color: var(--primary-blue-dark);
+        }
+
+        @media (min-width: 768px) {
+            .profile-card {
+                flex-direction: row;
+                text-align: left;
+                padding: 30px;
+            }
+            .profile-card img {
+                margin-right: 20px;
+                margin-bottom: 0;
+            }
+            .profile-card .intro-text {
+                flex-grow: 1;
+            }
+            .profile-card .social-links {
+                justify-content: flex-start;
+            }
+        }
+        @media (max-width: 768px) {
+            .profile-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            .profile-card img {
+                width: 90px;
+                height: 90px;
+                margin-bottom: 10px;
+            }
+            .profile-card h3 {
+                font-size: 1.1rem;
+            }
+            .profile-card p {
+                font-size: 0.75rem;
+                margin-bottom: 8px;
+            }
+            .profile-card .social-links {
+                gap: 10px;
+                margin-top: 8px;
+                justify-content: center;
+            }
+            .profile-card .social-links a {
+                font-size: 0.875rem;
+                gap: 3px;
+            }
+        }
+
+        .feedback-message {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .feedback-message.correct {
+            background-color: #e6ffe6;
+            color: #28a745;
+            border: 1px solid #4CAF50;
+        }
+
+        .feedback-message.incorrect {
+            background-color: #ffe6e6;
+            color: #dc3545;
+            border: 1px solid #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .feedback-message {
+                font-size: 0.7rem;
+                padding: 6px 10px;
+            }
+        }
+
+        .print-results-btn {
+            @apply mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded-md font-semibold hover:bg-blue-600 transition-colors duration-300;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'baby-blue': 'var(--baby-blue)',
+                        'baby-blue-dark': 'var(--baby-blue-dark)',
+                        'text-dark': 'var(--text-dark)',
+                        'accent-color': 'var(--accent-color)',
+                        'accent-color-dark': 'var(--accent-color-dark)',
+                        'card-bg': 'var(--card-bg)',
+                        'card-border': 'var(--card-border)',
+                        'popup-header-bg': 'var(--popup-header-bg)',
+                        'popup-header-text': 'var(--popup-header-text)',
+                        'solution-bg': 'var(--solution-bg)',
+                        'solution-border': 'var(--solution-border)',
+                        'guide-button-bg': 'var(--guide-button-bg)',
+                        'guide-button-hover': 'var(--guide-button-hover)',
+                        'back-button-bg': 'var(--back-button-bg)',
+                        'back-button-hover': 'var(--back-button-hover)',
+                        'primary-blue': 'var(--primary-blue)',
+                        'primary-blue-dark': 'var(--primary-blue-dark)',
+                        'secondary-gray': 'var(--secondary-gray)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-baby-blue text-text-dark leading-relaxed">
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex justify-between items-center py-2 md:py-3">
+                <div class="flex items-center">
+                    <img src="https://iconlogovector.com/uploads/images/2024/06/lg-665f26dc87d69-Universitas-Mataram.webp" alt="Logo UNRAM" class="h-6 mr-1 md:h-8">
+                    <div class="text-sm font-bold text-baby-blue-dark md:text-base">Geometri Transformasi</div>
+                </div>
+                <div class="menu-toggle flex flex-col cursor-pointer md:hidden" id="mobile-menu">
+                    <span class="block h-0.5 w-5 bg-text-dark my-0.5 transition-all duration-300 ease-in-out"></span>
+                    <span class="block h-0.5 w-5 bg-text-dark my-0.5 transition-all duration-300 ease-in-out"></span>
+                    <span class="block h-0.5 w-5 bg-text-dark my-0.5 transition-all duration-300 ease-in-out"></span>
+                </div>
+                <ul class="nav-links hidden flex-col absolute top-[40px] left-0 w-full bg-white shadow-md py-1 md:relative md:flex md:flex-row md:top-0 md:w-auto md:shadow-none" id="nav-links">
+                    <li><a href="#" class="block py-1.5 px-2 text-center text-text-dark font-medium hover:text-baby-blue-dark transition-colors duration-300 md:ml-4 text-sm" id="nav-beranda"><i class="fas fa-home mr-1"></i>Beranda</a></li>
+                    <li><a href="#" class="block py-1.5 px-2 text-center text-text-dark font-medium hover:text-baby-blue-dark transition-colors duration-300 md:ml-4 text-sm" id="nav-materi"><i class="fas fa-book-open mr-1"></i>Materi</a></li>
+                    <li><a href="#" class="block py-1.5 px-2 text-center text-text-dark font-medium hover:text-baby-blue-dark transition-colors duration-300 md:ml-4 text-sm" id="nav-visualisasi"><i class="fas fa-chart-area mr-1"></i>Visualisasi</a></li>
+                    <li><a href="#" class="block py-1.5 px-2 text-center text-text-dark font-medium hover:text-baby-blue-dark transition-colors duration-300 md:ml-4 text-sm" id="nav-latihan-soal"><i class="fas fa-pencil-alt mr-1"></i>Latihan Soal</a></li>
+                    <li><a href="#" class="block py-1.5 px-2 text-center text-text-dark font-medium hover:text-baby-blue-dark transition-colors duration-300 md:ml-4 text-sm" id="nav-tim-pengembang"><i class="fas fa-users mr-1"></i>Tim Pengembang</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero relative min-h-[calc(100vh-40px)] md:min-h-[calc(100vh-60px)] flex items-center justify-center py-6 md:py-10 text-center text-text-dark bg-gradient-to-b from-baby-blue to-[#a7e0f7] overflow-hidden" id="hero-section">
+        <div class="geometric-shape shape-circle shape-1"></div>
+        <div class="geometric-shape shape-square shape-2"></div>
+        <div class="geometric-shape shape-triangle shape-3"></div>
+        <div class="geometric-shape shape-circle shape-4"></div>
+        <div class="geometric-shape shape-square shape-5"></div>
+        <div class="geometric-shape shape-circle shape-6"></div>
+        <div class="geometric-shape shape-square shape-7"></div>
+        <div class="geometric-shape shape-circle shape-8"></div>
+        <div class="geometric-shape shape-square shape-9"></div>
+        <div class="geometric-shape shape-circle shape-10"></div>
+
+        <div class="container mx-auto px-2 relative z-10 flex flex-col items-center hero-content">
+            <h1 class="text-xl md:text-3xl lg:text-4xl font-bold mb-2 md:mb-4 leading-tight text-baby-blue-dark drop-shadow-md">Jelajahi Dunia Geometri Transformasi dengan Mudah dan Menyenangkan!</h1>
+            <p class="text-xs md:text-sm max-w-2xl mx-auto mb-4 md:mb-6">Media interaktif ini dirancang khusus untuk membantu Anda memahami konsep-konsep dasar transformasi seperti translasi, rotasi, refleksi, dan dilatasi melalui visualisasi yang jelas dan latihan soal yang menantang.</p>
+            <div class="flex flex-col md:flex-row gap-2 md:gap-3 mt-2 md:mt-3 justify-center">
+                <a href="#" class="btn bg-accent-color text-white py-2 px-4 md:py-2.5 md:px-6 rounded-full text-xs md:text-sm font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark hover:translate-y-[-2px] hover:shadow-lg" id="start-learning-btn">Mulai Belajar Sekarang</a>
+                <button class="btn-guide flex items-center gap-1 bg-guide-button-bg text-text-dark py-2 px-4 md:py-2.5 md:px-6 rounded-full text-xs md:text-sm font-semibold shadow-md transition-all duration-300 hover:bg-guide-button-hover hover:translate-y-[-2px] hover:shadow-lg" data-guide-for="beranda"><i class="fas fa-info-circle text-sm"></i> Petunjuk</button>
+            </div>
+        </div>
+        <img src="https://i.imgur.com/FktRO9H.png" alt="Geometric Shapes" class="hero-image hidden">
+    </section>
+
+    <section class="materi-section hidden py-6 md:py-10 bg-baby-blue min-h-[calc(100vh-40px)] md:min-h-[calc(100vh-60px)] relative" id="materi-section">
+        <div class="container mx-auto px-2">
+            <div class="section-header text-center text-baby-blue-dark mb-4 md:mb-6 relative flex flex-col md:flex-row justify-center items-center gap-2 md:gap-3">
+                <h2 class="text-xl md:text-2xl lg:text-3xl font-bold drop-shadow-sm flex-grow text-center">Materi Geometri Transformasi</h2>
+                <div class="header-buttons flex gap-1 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2">
+                    <button class="btn-back hidden flex items-center gap-1 bg-back-button-bg text-white py-1 px-2 md:py-1.5 md:px-3 rounded-full text-xs shadow-none transition-all duration-300 hover:bg-back-button-hover hover:shadow-sm" id="back-to-previous-materi"><i class="fas fa-arrow-left text-xs"></i> Kembali</button>
+                    <button class="btn-guide flex items-center gap-1 bg-guide-button-bg text-text-dark py-1 px-2 md:py-1.5 md:px-3 rounded-full text-xs shadow-none transition-all duration-300 hover:bg-guide-button-hover hover:shadow-sm" data-guide-for="materi"><i class="fas fa-info-circle text-xs"></i> Petunjuk</button>
+                </div>
+            </div>
+            <div class="flex flex-col gap-3 md:gap-4">
+                <div class="bg-white p-4 md:p-6 rounded-lg shadow-lg">
+                    <h3 class="text-accent-color text-base md:text-xl font-semibold mb-2 md:mb-3">Capaian Pembelajaran</h3>
+                    <p class="mb-2 md:mb-3 text-xs md:text-sm">Di akhir fase D (kelas VII, VIII, dan IX SMP/MTs), pada elemen Geometri, peserta didik dapat melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat karterius dan menggunakannya untuk menyelesaikan masalah.</p>
+                    <h3 class="text-accent-color text-base md:text-xl font-semibold mt-3 mb-2 md:mb-3">Tujuan Pembelajaran</h3>
+                    <ul class="list-none pl-0 text-xs md:text-sm">
+                        <li class="mb-1.5 pl-4 relative before:content-['\2713'] before:absolute before:left-0 before:text-accent-color before:font-bold">Menjelaskan konsep dasar geometri transformasi, termasuk rotasi, refleksi, translasi, dan dilatasi.</li>
+                        <li class="mb-1.5 pl-4 relative before:content-['\2713'] before:absolute before:left-0 before:text-accent-color before:font-bold">Mengidentifikasi unsur-unsur transformasi pada bangun datar, seperti titik rotasi, sumbu refleksi, vektor translasi dan titik pusat dilatasi.</li>
+                        <li class="mb-1.5 pl-4 relative before:content-['\2713'] before:absolute before:left-0 before:text-accent-color before:font-bold">Menentukan bayanngan suatu titik atau bangun datar hasil dari transformasi di bidang koordinat kartesius.</li>
+                        <li class="mb-1.5 pl-4 relative before:content-['\2713'] before:absolute before:left-0 before:text-accent-color before:font-bold">Menggambar hasil transformasi bangun datar menggunakan koordinat dan memahami perubahan bentuk dan posisi akibat transformasi.</li>
+                        <li class="mb-1.5 pl-4 relative before:content-['\2713'] before:absolute before:left-0 before:text-accent-color before:font-bold">Menyelesaikan masalah kontekstual yang melibatkan geometri transformasi dalam kehidupan sehari-hari.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-4 md:p-6 rounded-lg shadow-lg text-center">
+                    <h3 class="text-accent-color text-base md:text-xl font-semibold mb-2 md:mb-4">Referensi Materi Tambahan</h3>
+                    <p class="mb-3 md:mb-4 text-xs md:text-sm">Unduh materi lengkap dalam format PDF untuk pembelajaran offline.</p>
+                    <a href="https://drive.google.com/drive/folders/10BLg0ZGhjAtJyr1ZQH4kkt2E7NM0k7Tn" target="_blank" class="btn bg-accent-color text-white py-1.5 px-4 md:py-2 md:px-6 rounded-full text-xs md:text-sm font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark hover:translate-y-[-2px] hover:shadow-lg">Unduh Materi PDF</a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-2 md:mt-4">
+                    <div class="material-card bg-card-bg border border-card-border rounded-lg p-3 md:p-4 text-center shadow-md transition-all duration-300 ease-in-out hover:translate-y-[-4px] hover:shadow-xl flex flex-col justify-between">
+                        <h4 class="text-sm md:text-base font-semibold text-baby-blue-dark mb-2 md:mb-3">Translasi (Pergeseran)</h4>
+                        <p class="text-text-dark mb-3 md:mb-4 flex-grow text-xs md:text-sm">Pelajari bagaimana objek bergerak dari satu posisi ke posisi lain tanpa perubahan orientasi atau ukuran.</p>
+                        <a href="#" class="btn learn-btn bg-accent-color text-white py-1.5 px-3 md:py-2 md:px-4 rounded-full text-xs font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark hover:translate-y-[-1px] hover:shadow-lg" data-material="translasi">Pelajari Translasi</a>
+                    </div>
+                    <div class="material-card bg-card-bg border border-card-border rounded-lg p-3 md:p-4 text-center shadow-md transition-all duration-300 ease-in-out hover:translate-y-[-4px] hover:shadow-xl flex flex-col justify-between">
+                        <h4 class="text-sm md:text-base font-semibold text-baby-blue-dark mb-2 md:mb-3">Rotasi (Perputaran)</h4>
+                        <p class="text-text-dark mb-3 md:mb-4 flex-grow text-xs md:text-sm">Pahami bagaimana objek berputar mengelilingi titik pusat tertentu dengan sudut dan arah yang ditentukan.</p>
+                        <a href="#" class="btn learn-btn bg-accent-color text-white py-1.5 px-3 md:py-2 md:px-4 rounded-full text-xs font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark hover:translate-y-[-1px] hover:shadow-lg" data-material="rotasi">Pelajari Rotasi</a>
+                    </div>
+                    <div class="material-card bg-card-bg border border-card-border rounded-lg p-3 md:p-4 text-center shadow-md transition-all duration-300 ease-in-out hover:translate-y-[-4px] hover:shadow-xl flex flex-col justify-between">
+                        <h4 class="text-sm md:text-base font-semibold text-baby-blue-dark mb-2 md:mb-3">Refleksi (Pencerminan)</h4>
+                        <p class="text-text-dark mb-3 md:mb-4 flex-grow text-xs md:text-sm">Temukan bagaimana objek dipantulkan melintasi garis atau titik, menciptakan bayangan cermin.</p>
+                        <a href="#" class="btn learn-btn bg-accent-color text-white py-1.5 px-3 md:py-2 md:px-4 rounded-full text-xs font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark hover:translate-y-[-1px] hover:shadow-lg" data-material="refleksi">Pelajari Refleksi</a>
+                    </div>
+                    <div class="material-card bg-card-bg border border-card-border rounded-lg p-3 md:p-4 text-center shadow-md transition-all duration-300 ease-in-out hover:translate-y-[-4px] hover:shadow-xl flex flex-col justify-between">
+                        <h4 class="text-sm md:text-base font-semibold text-baby-blue-dark mb-2 md:mb-3">Dilatasi (Perkalian)</h4>
+                        <p class="text-text-dark mb-3 md:mb-4 flex-grow text-xs md:text-sm">Ketahui bagaimana objek diperbesar atau diperkecil dari titik pusat dengan faktor skala tertentu.</p>
+                        <a href="#" class="btn learn-btn bg-accent-color text-white py-1.5 px-3 md:py-2 md:px-4 rounded-full text-xs font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark hover:translate-y-[-1px] hover:shadow-lg" data-material="dilatasi">Pelajari Dilatasi</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="visualisasi-section hidden py-6 md:py-10 bg-baby-blue min-h-[calc(100vh-40px)] md:min-h-[calc(100vh-60px)] relative" id="visualisasi-section">
+        <div class="container mx-auto px-2">
+            <div class="section-header text-center text-baby-blue-dark mb-4 md:mb-6 relative flex flex-col md:flex-row justify-center items-center gap-2 md:gap-3">
+                <h2 class="text-xl md:text-2xl lg:text-3xl font-bold drop-shadow-sm flex-grow text-center">Visualisasi Geometri Transformasi</h2>
+                <div class="header-buttons flex gap-1 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2">
+                    <button class="btn-back hidden flex items-center gap-1 bg-back-button-bg text-white py-1 px-2 md:py-1.5 md:px-3 rounded-full text-xs shadow-none transition-all duration-300 hover:bg-back-button-hover hover:shadow-sm" id="back-to-previous-visualisasi"><i class="fas fa-arrow-left text-xs"></i> Kembali</button>
+                    <button class="btn-guide flex items-center gap-1 bg-guide-button-bg text-text-dark py-1 px-2 md:py-1.5 md:px-3 rounded-full text-xs shadow-none transition-all duration-300 hover:bg-guide-button-hover hover:shadow-sm" data-guide-for="visualisasi"><i class="fas fa-info-circle text-xs"></i> Petunjuk</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="geogebra-container flex-grow">
+                    <h3 class="text-lg md:text-xl font-bold text-primary-blue text-center mb-3">Visualisasi Titik dengan GeoGebra</h3>
+                    
+                    <div class="flex flex-col md:flex-row gap-1 mb-2">
+                        <button class="flex-1 py-1.5 px-3 rounded-md font-semibold text-white bg-primary-blue hover:bg-primary-blue-dark transition-colors duration-300 text-xs" id="open-coordinate-input-popup">
+                            <i class="fas fa-plus-circle mr-2"></i> Masukkan Titik
+                        </button>
+                        <button class="flex-1 py-1.5 px-3 rounded-md font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors duration-300 text-xs" id="reset-all-points">
+                            <i class="fas fa-redo mr-2"></i> Reset Semua Titik
+                        </button>
+                    </div>
+
+                    <div id="ggb-applet"></div>
+                </div>
+
+                <div class="transformation-buttons-vertical flex-shrink-0 w-full lg:w-auto grid grid-cols-2 lg:grid-cols-1 gap-1 md:gap-2">
+                    <h3 class="col-span-2 lg:col-span-1 text-lg md:text-xl font-bold text-primary-blue text-center mb-3">Pilih Transformasi</h3>
+                    <button class="transformation-btn rotasi" id="visual-rotasi-button" data-guide-for="visual-rotasi">
+                        <i class="fas fa-sync-alt"></i> <span>Rotasi</span>
+                    </button>
+                    <button class="transformation-btn refleksi" id="visual-refleksi-button" data-guide-for="visual-refleksi">
+                        <i class="fas fa-ruler-horizontal"></i> <span>Refleksi</span>
+                    </button>
+                    <button class="transformation-btn translasi" id="visual-translasi-button" data-guide-for="visual-translasi">
+                        <i class="fas fa-arrows-alt"></i> <span>Translasi</span>
+                    </button>
+                    <button class="transformation-btn dilatasi" id="visual-dilatasi-button" data-guide-for="visual-dilatasi">
+                        <i class="fas fa-expand-arrows-alt"></i> <span>Dilatasi</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="latihan-soal-section hidden py-6 md:py-10 bg-baby-blue min-h-[calc(100vh-40px)] md:min-h-[calc(100vh-60px)] relative" id="latihan-soal-section">
+        <div class="container mx-auto px-2">
+            <div class="section-header text-center text-baby-blue-dark mb-4 md:mb-6 relative flex flex-col md:flex-row justify-center items-center gap-2 md:gap-3">
+                <h2 class="text-xl md:text-2xl lg:text-3xl font-bold drop-shadow-sm flex-grow text-center">Latihan Soal Geometri Transformasi</h2>
+                <div class="header-buttons flex gap-1 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2">
+                    <button class="btn-back hidden flex items-center gap-1 bg-back-button-bg text-white py-1 px-2 md:py-1.5 md:px-3 rounded-full text-xs shadow-none transition-all duration-300 hover:bg-back-button-hover hover:shadow-sm" id="back-to-previous-latihan-soal"><i class="fas fa-arrow-left text-xs"></i> Kembali</button>
+                    <button class="btn-guide flex items-center gap-1 bg-guide-button-bg text-text-dark py-1 px-2 md:py-1.5 md:px-3 rounded-full text-xs shadow-none transition-all duration-300 hover:bg-guide-button-hover hover:shadow-sm" data-guide-for="latihan_soal"><i class="fas fa-info-circle text-xs"></i> Petunjuk</button>
+                </div>
+            </div>
+            
+            <form class="latihan-form" onsubmit="return false;">
+                <fieldset class="latihan-fieldset">
+                    <legend class="latihan-legend">
+                        <i class="fas fa-arrows-alt"></i> Soal 1-5 - Transformasi Translasi
+                    </legend>
+                    <div class="space-y-4">
+                        <div id="question-1-container">
+                            <p class="latihan-question">
+                                1. Titik A(1, 2) ditranslasi oleh vektor (3, 4). Koordinat titik hasil translasi adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q1" type="radio" value="a1"/> <span>(4, 6)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q1" type="radio" value="b1"/> <span>(1, 6)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q1" type="radio" value="c1"/> <span>(4, 2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q1" type="radio" value="d1"/> <span>(3, 6)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q1"></div>
+                        </div>
+
+                        <div id="question-2-container">
+                            <p class="latihan-question">
+                                2. Titik B(5, -1) ditranslasi oleh vektor (-2, 3). Koordinat titik hasil translasi adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q2" type="radio" value="a2"/> <span>(3, 2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q2" type="radio" value="b2"/> <span>(7, -4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q2" type="radio" value="c2"/> <span>(3, -4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q2" type="radio" value="d2"/> <span>(7, 2)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q2"></div>
+                        </div>
+
+                        <div id="question-3-container">
+                            <p class="latihan-question">
+                                3. Titik C(-3, 4) ditranslasi oleh vektor (5, -2). Koordinat titik hasil translasi adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q3" type="radio" value="a3"/> <span>(2, 2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q3" type="radio" value="b3"/> <span>(-8, 6)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q3" type="radio" value="c3"/> <span>(2, 6)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q3" type="radio" value="d3"/> <span>(-8, -6)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q3"></div>
+                        </div>
+
+                        <div id="question-4-container">
+                            <p class="latihan-question">
+                                4. Titik D(0, 0) ditranslasi oleh vektor (7, -3). Koordinat titik hasil translasi adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q4" type="radio" value="a4"/> <span>(7, -3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q4" type="radio" value="b4"/> <span>(3, 7)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q4" type="radio" value="c4"/> <span>(-7, 3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q4" type="radio" value="d4"/> <span>(7, 3)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q4"></div>
+                        </div>
+
+                        <div id="question-5-container">
+                            <p class="latihan-question">
+                                5. Titik E(6, -2) ditranslasi oleh vektor (-5, 5). Koordinat titik hasil translasi adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q5" type="radio" value="a5"/> <span>(1, 3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q5" type="radio" value="b5"/> <span>(11, 3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q5" type="radio" value="c5"/> <span>(1, -7)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q5" type="radio" value="d5"/> <span>(11, -7)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q5"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="latihan-fieldset">
+                    <legend class="latihan-legend">
+                        <i class="fas fa-sync-alt"></i> Soal 6-10 - Transformasi Rotasi
+                    </legend>
+                    <div class="space-y-4">
+                        <div id="question-6-container">
+                            <p class="latihan-question">
+                                6. Titik A(2, 3) diputar 90° berlawanan arah jarum jam terhadap titik pusat (0, 0). Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q6" type="radio" value="a6"/> <span>(-3, 2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q6" type="radio" value="b6"/> <span>(3, -2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q6" type="radio" value="c6"/> <span>(3, 2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q6" type="radio" value="d6"/> <span>(-2, -3)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q6"></div>
+                        </div>
+
+                        <div id="question-7-container">
+                            <p class="latihan-question">
+                                7. Titik B(1, 0) diputar 180° terhadap titik pusat (0, 0). Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q7" type="radio" value="a7"/> <span>(-1, 0)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q7" type="radio" value="b7"/> <span>(1, 0)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q7" type="radio" value="c7"/> <span>(0, -1)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q7" type="radio" value="d7"/> <span>(0, 1)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q7"></div>
+                        </div>
+
+                        <div id="question-8-container">
+                            <p class="latihan-question">
+                                8. Titik C(3, 4) diputar 270° berlawanan arah jarum jam terhadap titik pusat (0, 0). Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q8" type="radio" value="a8"/> <span>(4, -3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q8" type="radio" value="b8"/> <span>(-4, 3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q8" type="radio" value="c8"/> <span>(3, -4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q8" type="radio" value="d8"/> <span>(-3, 4)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q8"></div>
+                        </div>
+
+                        <div id="question-9-container">
+                            <p class="latihan-question">
+                                9. Titik D(0, 5) diputar -90° (searah jarum jam) terhadap titik pusat (0, 0). Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q9" type="radio" value="a9"/> <span>(5, 0)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q9" type="radio" value="b9"/> <span>(-5, 0)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q9" type="radio" value="c9"/> <span>(0, -5)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q9" type="radio" value="d9"/> <span>(0, 5)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q9"></div>
+                        </div>
+
+                        <div id="question-10-container">
+                            <p class="latihan-question">
+                                10. Titik E(1, 1) diputar 0° terhadap titik pusat (0, 0). Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q10" type="radio" value="a10"/> <span>(1, 1)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q10" type="radio" value="b10"/> <span>(-1, -1)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q10" type="radio" value="c10"/> <span>(1, -1)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q10" type="radio" value="d10"/> <span>(-1, 1)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q10"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="latihan-fieldset">
+                    <legend class="latihan-legend">
+                        <i class="fas fa-ruler-horizontal"></i> Soal 11-15 - Transformasi Refleksi
+                    </legend>
+                    <div class="space-y-4">
+                        <div id="question-11-container">
+                            <p class="latihan-question">
+                                11. Titik A(3, 4) direfleksikan terhadap sumbu x. Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q11" type="radio" value="a11"/> <span>(3, -4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q11" type="radio" value="b11"/> <span>(-3, 4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q11" type="radio" value="c11"/> <span>(4, 3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q11" type="radio" value="d11"/> <span>(-4, -3)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q11"></div>
+                        </div>
+
+                        <div id="question-12-container">
+                            <p class="latihan-question">
+                                12. Titik B(-2, 5) direfleksikan terhadap sumbu y. Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q12" type="radio" value="a12"/> <span>(-2, -5)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q12" type="radio" value="b12"/> <span>(2, 5)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q12" type="radio" value="c12"/> <span>(2, -5)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q12" type="radio" value="d12"/> <span>(-2, 5)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q12"></div>
+                        </div>
+
+                        <div id="question-13-container">
+                            <p class="latihan-question">
+                                13. Titik C(4, -3) direfleksikan terhadap garis y = x. Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q13" type="radio" value="a13"/> <span>(4, -3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q13" type="radio" value="b13"/> <span>(-3, 4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q13" type="radio" value="c13"/> <span>(-4, 3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q13" type="radio" value="d13"/> <span>(3, 4)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q13"></div>
+                        </div>
+
+                        <div id="question-14-container">
+                            <p class="latihan-question">
+                                14. Titik D(0, 7) direfleksikan terhadap garis y = −x. Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q14" type="radio" value="a14"/> <span>(-7, 0)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q14" type="radio" value="b14"/> <span>(7, 0)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q14" type="radio" value="c14"/> <span>(0, 7)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q14" type="radio" value="d14"/> <span>(0, -7)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q14"></div>
+                        </div>
+
+                        <div id="question-15-container">
+                            <p class="latihan-question">
+                                15. Titik E(5, -1) direfleksikan terhadap titik asal (0,0). Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q15" type="radio" value="a15"/> <span>(-5, 1)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q15" type="radio" value="b15"/> <span>(5, 1)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q15" type="radio" value="c15"/> <span>(-5, -1)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q15" type="radio" value="d15"/> <span>(5, -1)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q15"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="latihan-fieldset">
+                    <legend class="latihan-legend">
+                        <i class="fas fa-expand-arrows-alt"></i> Soal 16-20 - Transformasi Dilatasi
+                    </legend>
+                    <div class="space-y-4">
+                        <div id="question-16-container">
+                            <p class="latihan-question">
+                                16. Titik A(1, 2) didilatasi dengan pusat (0, 0) dan faktor skala 2. Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q16" type="radio" value="a16"/> <span>(2, 4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q16" type="radio" value="b16"/> <span>(1, 4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q16" type="radio" value="c16"/> <span>(2, 2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q16" type="radio" value="d16"/> <span>(3, 4)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q16"></div>
+                        </div>
+
+                        <div id="question-17-container">
+                            <p class="latihan-question">
+                                17. Titik B(3, 4) didilatasi dengan pusat (1, 1) dan faktor skala 3. Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q17" type="radio" value="a17"/> <span>(7, 10)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q17" type="radio" value="b17"/> <span>(5, 7)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q17" type="radio" value="c17"/> <span>(4, 8)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q17" type="radio" value="d17"/> <span>(2, 3)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q17"></div>
+                        </div>
+
+                        <div id="question-18-container">
+                            <p class="latihan-question">
+                                18. Titik C(0, 0) didilatasi dengan pusat (0, 0) dan faktor skala 4. Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q18" type="radio" value="a18"/> <span>(0, 0)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q18" type="radio" value="b18"/> <span>(4, 4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q18" type="radio" value="c18"/> <span>(1, 1)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q18" type="radio" value="d18"/> <span>(-4, -4)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q18"></div>
+                        </div>
+
+                        <div id="question-19-container">
+                            <p class="latihan-question">
+                                19. Titik D(5, -2) didilatasi dengan pusat (2, -1) dan faktor skala 0. Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q19" type="radio" value="a19"/> <span>(2, -1)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q19" type="radio" value="b19"/> <span>(5, -2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q19" type="radio" value="c19"/> <span>(7, -3)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q19" type="radio" value="d19"/> <span>(3, 0)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q19"></div>
+                        </div>
+
+                        <div id="question-20-container">
+                            <p class="latihan-question">
+                                20. Titik E(-1, 2) didilatasi dengan pusat (0, 0) dan faktor skala 1. Koordinat bayangan adalah ...?
+                            </p>
+                            <label class="latihan-radio-label">
+                                <input name="q20" type="radio" value="a20"/> <span>(-1, 2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q20" type="radio" value="b20"/> <span>(1, -2)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q20" type="radio" value="c20"/> <span>(-2, 4)</span>
+                            </label>
+                            <label class="latihan-radio-label">
+                                <input name="q20" type="radio" value="d20"/> <span>(2, -4)</span>
+                            </label>
+                            <div class="feedback-message" id="feedback-q20"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <button class="latihan-submit-btn" type="submit" id="submit-latihan-btn">
+                    Cek Jawaban
+                </button>
+                <button class="print-results-btn hidden" id="print-latihan-btn">
+                    Cetak Hasil Pengerjaan
+                </button>
+                <p class="latihan-result" id="latihan-result"></p>
+            </form>
+        </div>
+    </section>
+
+    <section class="tim-pengembang-section hidden py-6 md:py-10 bg-baby-blue min-h-[calc(100vh-40px)] md:min-h-[calc(100vh-60px)] relative" id="tim-pengembang-section">
+        <div class="container mx-auto px-2">
+            <div class="section-header text-center text-baby-blue-dark mb-4 md:mb-6 relative flex flex-col md:flex-row justify-center items-center gap-2 md:gap-3">
+                <h2 class="text-xl md:text-2xl lg:text-3xl font-bold drop-shadow-sm flex-grow text-center">Tim Pengembang</h2>
+                <div class="header-buttons flex gap-1 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2">
+                    <button class="btn-back hidden flex items-center gap-1 bg-back-button-bg text-white py-1 px-2 md:py-1.5 md:px-3 rounded-full text-xs shadow-none transition-all duration-300 hover:bg-back-button-hover hover:shadow-sm" id="back-to-previous-tim-pengembang"><i class="fas fa-arrow-left text-xs"></i> Kembali</button>
+                    <button class="btn-guide flex items-center gap-1 bg-guide-button-bg text-text-dark py-1 px-2 md:py-1.5 md:px-3 rounded-full text-xs shadow-none transition-all duration-300 hover:bg-guide-button-hover hover:shadow-sm" data-guide-for="tim_pengembang"><i class="fas fa-info-circle text-xs"></i> Petunjuk</button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
+                <div class="profile-card">
+                    <img src="https://fkip.unram.ac.id/matematika/wp-content/uploads/sites/16/2023/04/Pak-Amrullah.webp" alt="Foto profil Dr. Amrullah, M.Si.">
+                    <div class="intro-text">
+                        <h3>Dr. Amrullah, M.Si.</h3>
+                        <p>NIP. 197212312000031003</p>
+                        <p>Keahlian: Menguasai bidang pemrograman komputer dan website, dengan penguasaan berbagai bahasa pemrograman seperti PHP, HTML, dan Python serta menguasai materi Teori Graf secara mendalam.</p>
+                        <div class="social-links">
+                            <a href="mailto:amrullah@unram.ac.id" aria-label="Email ke Dr. Amrullah, M.Si.">
+                                <i class="fas fa-envelope"></i> Email
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <img src="https://fkip.unram.ac.id/matematika/wp-content/uploads/sites/16/2023/04/Pak-Eka.webp" alt="Foto profil Eka Kurniawan, S.Pd., M.Pd.">
+                    <div class="intro-text">
+                        <h3>Eka Kurniawan, S.Pd., M.Pd.</h3>
+                        <p>NIDN. 0028049204</p>
+                        <p>Keahlian: Menguasai bidang pemrograman PHP, penerapan komputer dalam matematika dan statistika, serta penguasaan materi geometri transformasi.</p>
+                        <div class="social-links">
+                            <a href="mailto:ekakurniawan2892@unram.ac.id" aria-label="Email ke Eka Kurniawan, S.Pd., M.Pd.">
+                                <i class="fas fa-envelope"></i> Email
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <img src="https://fkip.unram.ac.id/matematika/wp-content/uploads/sites/16/2023/04/Pak-Baidowi.webp" alt="Foto profil Drs. Baidowi, M.Si.">
+                    <div class="intro-text">
+                        <h3>Drs. Baidowi, M.Si.</h3>
+                        <p>NIP. 196504061992031001</p>
+                        <p>Keahlian: bidang profesi kependidikan, microteaching, dan penguasaan secara mendalam terhadap materi statistika.</p>
+                        <div class="social-links">
+                            <a href="mailto:baidowi.fkip@unram.ac.id" aria-label="Email ke Drs. Baidowi, M.Si.">
+                                <i class="fas fa-envelope"></i> Email
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <img src="https://i.imgur.com/XZ2q5yJ.jpg" alt="Foto profil Khulaeni Hidayatul Hidayah">
+                    <div class="intro-text">
+                        <h3>Khulaeni Hidayatul Hidayah</h3>
+                        <p>NIM. E1R021074</p>
+                        <p>Keahlian: Mengembangkan website dengan html dan memiliki pengalaman dalam mengajar.</p>
+                        <div class="social-links">
+                            <a href="https://www.instagram.com/nira028_?igsh=MWM5bm1qZXZ1Z2FrbA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram Khulaeni Hidayatul Hidayah">
+                                <i class="fab fa-instagram"></i> Instagram
+                            </a>
+                            <a href="mailto:ainira922@gmail.com" aria-label="Email ke Khulaeni Hidayatul Hidayah">
+                                <i class="fas fa-envelope"></i> Gmail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-white py-3 md:py-4 text-center">
+        <div class="container mx-auto px-2">
+            <ul class="flex justify-center list-none mb-2 md:mb-3">
+                <li class="mx-1 md:mx-1.5"><a href="#" class="text-baby-blue-dark text-base md:text-lg transition-colors duration-300 hover:text-[#5d9cc9]"><i class="fab fa-facebook"></i></a></li>
+                <li class="mx-1 md:mx-1.5"><a href="#" class="text-baby-blue-dark text-base md:text-lg transition-colors duration-300 hover:text-[#5d9cc9]"><i class="fab fa-twitter"></i></a></li>
+                <li class="mx-1 md:mx-1.5"><a href="#" class="text-baby-blue-dark text-base md:text-lg transition-colors duration-300 hover:text-[#5d9cc9]"><i class="fab fa-instagram"></i></a></li>
+                <li class="mx-1 md:mx-1.5"><a href="#" class="text-baby-blue-dark text-base md:text-lg transition-colors duration-300 hover:text-[#5d9cc9]"><i class="fab fa-linkedin"></i></a></li>
+            </ul>
+            <p class="text-2xs md:text-xs text-text-dark">&copy; 2025 Media Geometri Transformasi. Semua Hak Dilindungi.</p>
+        </div>
+    </footer>
+
+    <div class="popup-overlay fixed inset-0 bg-black bg-opacity-70 z-[1000] justify-center items-center" id="material-popup">
+        <div class="popup-content bg-white rounded-lg shadow-xl max-w-[90%] sm:max-w-xs md:max-w-md lg:max-w-xl w-[95%] max-h-[90vh] overflow-y-auto relative animate-fade-in flex flex-col">
+            <div class="popup-header bg-popup-header-bg text-popup-header-text p-2 md:p-3 rounded-t-lg flex justify-between items-center">
+                <h3 class="text-base md:text-xl font-semibold" id="popup-title"></h3>
+                <span class="popup-close text-xl md:text-2xl cursor-pointer text-popup-header-text transition-colors duration-300 hover:text-accent-color">&times;</span>
+            </div>
+            <div class="popup-body p-3 md:p-4 flex-grow text-xs md:text-sm" id="popup-body">
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-overlay fixed inset-0 bg-black bg-opacity-70 z-[1000] justify-center items-center" id="universal-popup">
+        <div class="universal-popup-content">
+            <div class="universal-popup-header">
+                <h3 id="universal-popup-title"></h3>
+                <span class="universal-popup-close" id="universal-popup-close">&times;</span>
+            </div>
+            <div class="universal-popup-body" id="universal-popup-body">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = document.getElementById('nav-links');
+            const heroSection = document.getElementById('hero-section');
+            const materiSection = document.getElementById('materi-section');
+            const visualisasiSection = document.getElementById('visualisasi-section');
+            const latihanSoalSection = document.getElementById('latihan-soal-section');
+            const timPengembangSection = document.getElementById('tim-pengembang-section');
+
+            const navBeranda = document.getElementById('nav-beranda');
+            const navMateri = document.getElementById('nav-materi');
+            const navVisualisasi = document.getElementById('nav-visualisasi');
+            const navLatihanSoal = document.getElementById('nav-latihan-soal');
+            const navTimPengembang = document.getElementById('nav-tim-pengembang');
+
+            const startLearningBtn = document.getElementById('start-learning-btn');
+
+            const materialPopup = document.getElementById('material-popup');
+            const popupTitle = document.getElementById('popup-title');
+            const popupBody = document.getElementById('popup-body');
+            const popupClose = materialPopup.querySelector('.popup-close');
+            const learnButtons = document.querySelectorAll('.learn-btn');
+
+            const universalPopup = document.getElementById('universal-popup');
+            const universalPopupTitle = document.getElementById('universal-popup-title');
+            const universalPopupBody = document.getElementById('universal-popup-body');
+            const universalPopupClose = document.getElementById('universal-popup-close');
+            const guideButtons = document.querySelectorAll('.btn-guide');
+
+            const backToPreviousMateri = document.getElementById('back-to-previous-materi');
+            const backToPreviousVisualisasi = document.getElementById('back-to-previous-visualisasi');
+            const backToPreviousLatihanSoal = document.getElementById('back-to-previous-latihan-soal');
+            const backToPreviousTimPengembang = document.getElementById('back-to-previous-tim-pengembang');
+
+            let lastSection = 'hero-section';
+
+            const materialContent = {
+                translasi: {
+                    title: "Translasi (Pergeseran)",
+                    body: `
+                        <p class="mb-4 text-justify"><i class="fas fa-arrows-alt mr-2"></i> Translasi adalah transformasi geometri yang memindahkan setiap titik dari suatu objek sejauh vektor tertentu. Translasi ditentukan oleh arah dan besar perpindahan, tanpa mengubah bentuk dan ukuran objek.</p>
+                        <img src="https://i.imgur.com/n3Q77lu.png" alt="Ilustrasi Translasi" class="max-w-full h-auto block mx-auto my-5 rounded-lg shadow-md">
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-calculator mr-2"></i> Rumus Translasi:</h4>
+                        <p class="mb-4">
+                            Jika titik \$A(x, y)\$ ditranslasi oleh vektor \$(a, b)\$, maka bayangannya adalah:
+                            <br/><span class="block text-center text-lg font-mono my-2">\$\$A'(x + a, y + b)\$\$</span>
+                        </p>
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-lightbulb mr-2"></i> Penerapan dalam Kehidupan Sehari-hari:</h4>
+                        <p class="mb-4">
+                            Translasi dapat ditemukan dalam berbagai aspek kehidupan sehari-hari, seperti:
+                        </p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li><b>Menggeser Lemari:</b> Saat Anda memindahkan lemari dari satu sudut ruangan ke sudut lain tanpa memutar atau membaliknya, Anda sedang melakukan translasi.</li>
+                            <li><b>Lift atau Eskalator:</b> Pergerakan lift ke atas atau ke bawah, atau eskalator yang membawa orang dari satu lantai ke lantai lain, adalah contoh translasi.</li>
+                            <li><b>Kereta Api:</b> Pergerakan kereta api di atas rel lurus dari satu stasiun ke stasiun lain merupakan contoh translasi.</li>
+                            <li><b>Papan Catur:</b> Pergerakan bidak catur seperti benteng atau ratu secara lurus (horizontal atau vertikal) adalah translasi.</li>
+                        </ul>
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-question-circle mr-2"></i> Contoh Soal:</h4>
+                        <p class="mb-4">Tentukan bayangan titik \$A(2, 3)\$ jika ditranslasi oleh vektor \$(4, -1)\$.</p>
+                        <div class="solution-container mt-5 border-l-4 border-solution-border pl-4 bg-solution-bg rounded-md p-4 relative">
+                            <button class="toggle-solution-btn bg-accent-color text-white py-2 px-4 rounded-full text-sm font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark mb-3">Lihat Jawaban</button>
+                            <p class="solution-text italic text-text-dark">Jawaban: \$A(2, 3)\$ ditranslasi oleh \$(4, -1)\$ menjadi \$\$A'(2+4, 3-1) = A'(6, 2)\$\$</p>
+                        </div>
+                    `
+                },
+                rotasi: {
+                    title: "Rotasi (Perputaran)",
+                    body: `
+                        <p class="mb-4 text-justify"><i class="fas fa-sync-alt mr-2"></i> Rotasi adalah transformasi geometri berupa perpindahan yang dilakukan dengan memutar setiap titik pada sudut dan arah tertentu terhadap titik tetap yang disebut pusat rotasi. Besarnya sudut dan arah rotasi menentukan posisi bayangan titik hasil rotasi.</p>
+                        <img src="https://i.imgur.com/bEh62Kg.png" alt="Ilustrasi Rotasi" class="max-w-full h-auto block mx-auto my-5 rounded-lg shadow-md">
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-table mr-2"></i> Tabel Rumus Rotasi terhadap titik pusat \$(0,0)\$:</h4>
+                        <div class="overflow-x-auto mb-5">
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="border border-gray-300 p-2 text-left bg-baby-blue-dark text-white">Titik awal \$P(x,y)\$</th>
+                                        <th class="border border-gray-300 p-2 text-left bg-baby-blue-dark text-white">Derajat Rotasi</th>
+                                        <th class="border border-gray-300 p-2 text-left bg-baby-blue-dark text-white">Bayangan Titik atau \$P'(x,y)\$</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>\$90^\\circ\$</td><td>\$(-y, x)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>\$-90^\\circ\$</td><td>\$(y,-x)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>\$180^\\circ\$</td><td>\$(-x,-y)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>\$-180^\\circ\$</td><td>\$(-x,-y)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>\$270^\\circ\$</td><td>\$(y,-x)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>\$-270^\\circ\$</td><td>\$(-y, x)\$</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-lightbulb mr-2"></i> Penerapan dalam Kehidupan Sehari-hari:</h4>
+                        <p class="mb-4">
+                            Rotasi sering kita jumpai dalam aktivitas sehari-hari, antara lain:
+                        </p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li><b>Jarum Jam:</b> Pergerakan jarum jam yang berputar mengelilingi titik pusat jam.</li>
+                            <li><b>Roda Kendaraan:</b> Roda sepeda atau mobil yang berputar pada porosnya saat bergerak.</li>
+                            <li><b>Kipas Angin:</b> Bilah kipas angin yang berputar mengelilingi pusatnya untuk menghasilkan angin.</li>
+                            <li><b>Pintu Berputar:</b> Pintu putar di gedung-gedung besar yang berotasi saat orang masuk atau keluar.</li>
+                            <li><b>Komedi Putar:</b> Wahana komedi putar di taman hiburan yang berputar mengelilingi titik pusat.</li>
+                        </ul>
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-question-circle mr-2"></i> Contoh Soal:</h4>
+                        <p class="mb-4">Tentukan bayangan titik \$A(3, 2)\$ jika diputar \$90^\\circ\$ berlawanan arah jarum jam terhadap titik pusat \$(0, 0)\$.</p>
+                        <div class="solution-container mt-5 border-l-4 border-solution-border pl-4 bg-solution-bg rounded-md p-4 relative">
+                            <button class="toggle-solution-btn bg-accent-color text-white py-2 px-4 rounded-full text-sm font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark mb-3">Lihat Jawaban</button>
+                            <p class="solution-text italic text-text-dark">Jawaban: Karena rotasi \$90^\\circ\$ berlawanan arah jarum jam, \$A(3, 2) \\to A' = (-2, 3)\$.</p>
+                        </div>
+                    `
+                },
+                refleksi: {
+                    title: "Refleksi (Pencerminan)",
+                    body: `
+                        <p class="mb-4 text-justify"><i class="fas fa-mirror mr-2"></i> Refleksi adalah transformasi yang menghasilkan bayangan suatu objek terhadap garis tertentu yang disebut garis refleksi. Hasil refleksi memiliki bentuk dan ukuran yang sama dengan objek aslinya, tetapi dalam posisi terbalik seperti pantulan cermin.</p>
+                        <img src="https://i.imgur.com/AnEMzKT.png" alt="Ilustrasi Refleksi" class="max-w-full h-auto block mx-auto my-5 rounded-lg shadow-md">
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-info-circle mr-2"></i> Sifat Refleksi:</h4>
+                        <ul class="list-disc ml-5 mb-5">
+                            <li class="mb-2">Jarak titik ke garis refleksi sama dengan jarak bayangannya ke garis tersebut.</li>
+                            <li class="mb-2">Garis yang menghubungkan titik dan bayangannya tegak lurus terhadap garis refleksi.</li>
+                        </ul>
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-table mr-2"></i> Tabel Rumus Refleksi:</h4>
+                        <div class="overflow-x-auto mb-5">
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="border border-gray-300 p-2 text-left bg-baby-blue-dark text-white">Titik awal</th>
+                                        <th class="border border-gray-300 p-2 text-left bg-baby-blue-dark text-white">Direfleksikan terhadap</th>
+                                        <th class="border border-gray-300 p-2 text-left bg-baby-blue-dark text-white">Bayangan Titik \$(x, y)\$ atau \$P'(x,y)\$</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>Sumbu \$x\$</td><td>\$(x, -y)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>Sumbu \$y\$</td><td>\$(-x, y)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>Titik asal \$(0,0)\$</td><td>\$(-x, -y)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>Garis \$y = x\$</td><td>\$(y, x)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>Garis \$y = -x\$</td><td>\$(-y, -x)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>Garis \$x = k\$</td><td>\$(2k - x, y)\$</td></tr>
+                                    <tr class="even:bg-gray-100"><td>\$P(x,y)\$</td><td>Garis \$y = h\$</td><td>\$(x, 2h - y)\$</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-lightbulb mr-2"></i> Penerapan dalam Kehidupan Sehari-hari:</h4>
+                        <p class="mb-4">
+                            Refleksi adalah salah satu transformasi yang paling mudah diamati dalam kehidupan sehari-hari:
+                        </p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li><b>Cermin:</b> Bayangan Anda di cermin adalah contoh paling jelas dari refleksi.</li>
+                            <li><b>Permukaan Air Tenang:</b> Pantulan pohon atau bangunan di permukaan danau yang tenang.</li>
+                            <li><b>Kaca Spion Mobil:</b> Objek yang terlihat di kaca spion mobil adalah hasil refleksi.</li>
+                            <li><b>Desain Simetris:</b> Banyak desain arsitektur, seni, dan logo menggunakan prinsip refleksi untuk menciptakan simetri.</li>
+                            <li><b>Kaleidoskop:</b> Alat ini menggunakan cermin untuk menciptakan pola simetris yang indah melalui refleksi berulang.</li>
+                        </ul>
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-question-circle mr-2"></i> Contoh Soal:</h4>
+                        <p class="mb-4">Tentukan bayangan titik \$P(4, 2)\$ jika direfleksikan terhadap sumbu \$x\$.</p>
+                        <div class="solution-container mt-5 border-l-4 border-solution-border pl-4 bg-solution-bg rounded-md p-4 relative">
+                            <button class="toggle-solution-btn bg-accent-color text-white py-2 px-4 rounded-full text-sm font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark mb-3">Lihat Jawaban</button>
+                            <p class="solution-text italic text-text-dark">Jawaban: Bayangan \$P(4, 2)\$ terhadap sumbu \$x\$ adalah \$P'(4, -2)\$.</p>
+                        </div>
+                    `
+                },
+                dilatasi: {
+                    title: "Dilatasi (Perkalian)",
+                    body: `
+                        <p class="mb-4 text-justify"><i class="fas fa-expand-arrows-alt mr-2"></i> Dilatasi adalah transformasi yang mengubah ukuran suatu objek dengan faktor skala tertentu tanpa mengubah bentuk dasarnya. Objek dapat membesar atau mengecil tergantung nilai faktor skala.</p>
+                        <img src="https://i.imgur.com/FktRO9H.png" alt="Ilustrasi Dilatasi" class="max-w-full h-auto block mx-auto my-5 rounded-lg shadow-md">
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-calculator mr-2"></i> Rumus Dilatasi:</h4>
+                        <ul class="list-disc ml-5 mb-5">
+                            <li class="mb-2">Jika pusat dilatasi \$O(0, 0)\$ dan faktor skala \$k\$: \$(x, y) \\to (kx, ky)\$</li>
+                            <li class="mb-2">Jika pusat dilatasi \$(a, b)\$ dan faktor skala \$k\$: \$(x, y) \\to (k(x - a) + a, k(y - b) + b)\$</li>
+                        </ul>
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-lightbulb mr-2"></i> Penerapan dalam Kehidupan Sehari-hari:</h4>
+                        <p class="mb-4">
+                            Konsep dilatasi banyak digunakan dalam berbagai bidang, seperti:
+                        </p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li><b>Proyektor:</b> Saat Anda menggunakan proyektor, gambar kecil dari slide atau film diperbesar (dilatasi) ke ukuran yang lebih besar di layar.</li>
+                            <li><b>Fotokopi:</b> Mesin fotokopi dapat memperbesar atau memperkecil dokumen, yang merupakan contoh dilatasi.</li>
+                            <li><b>Peta:</b> Peta adalah representasi dilatasi dari wilayah geografis yang sebenarnya, dengan skala tertentu.</li>
+                            <li><b>Lensa Kamera:</b> Lensa kamera dapat memperbesar atau memperkecil objek yang difoto, tergantung pada pengaturan zoom.</li>
+                            <li><b>Desain Grafis:</b> Dalam perangkat lunak desain grafis, Anda sering memperbesar atau memperkecil gambar atau elemen desain.</li>
+                        </ul>
+                        <h4 class="text-baby-blue-dark text-xl font-semibold mt-5 mb-2"><i class="fas fa-question-circle mr-2"></i> Contoh Soal:</h4>
+                        <p class="mb-4">Tentukan bayangan titik \$A(3, -2)\$ jika didilatasi dengan pusat \$(0,0)\$ dan skala \$2\$.</p>
+                        <div class="solution-container mt-5 border-l-4 border-solution-border pl-4 bg-solution-bg rounded-md p-4 relative">
+                            <button class="toggle-solution-btn bg-accent-color text-white py-2 px-4 rounded-full text-sm font-semibold shadow-md transition-all duration-300 hover:bg-accent-color-dark mb-3">Lihat Jawaban</button>
+                            <p class="solution-text italic text-text-dark">Jawaban: \$A(3, -2) \\to A' = (2\\times3, 2\\times-2) = A'(6, -4)\$</p>
+                        </div>
+                    `
+                }
+            };
+
+            const guideContent = {
+                beranda: {
+                    title: "Petunjuk Beranda",
+                    body: `
+                        <p class="mb-4">Selamat datang di Media Geometri Transformasi! Halaman ini adalah pengantar untuk menjelajahi konsep-konsep transformasi geometri.</p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li class="mb-2">Tekan tombol "Mulai Belajar Sekarang" untuk langsung menuju materi.</li>
+                            <li class="mb-2">Gunakan navigasi di atas untuk berpindah antar bagian: Beranda, Materi, Visualisasi, Latihan Soal, dan Tim Pengembang.</li>
+                            <li class="mb-2">Tombol "Petunjuk" ini akan memberikan informasi singkat tentang setiap halaman.</li>
+                        </ul>
+                        <p>Semoga pengalaman belajar Anda menyenangkan!</p>
+                    `
+                },
+                materi: {
+                    title: "Petunjuk Materi",
+                    body: `
+                        <p class="mb-4">Di bagian Materi, Anda akan menemukan penjelasan mendalam tentang empat jenis transformasi geometri:</p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li class="mb-2"><b>Translasi (Pergeseran):</b> Mempelajari perpindahan objek tanpa perubahan bentuk.</li>
+                            <li class="mb-2"><b>Rotasi (Perputaran):</b> Memahami bagaimana objek berputar mengelilingi titik pusat.</li>
+                            <li class="mb-2"><b>Refleksi (Pencerminan):</b> Menjelajahi bagaimana objek dipantulkan.</li>
+                            <li class="mb-2"><b>Dilatasi (Perkalian):</b> Mengetahui bagaimana objek diperbesar atau diperkecil.</li>
+                        </ul>
+                        <p class="mb-4">Klik pada setiap kartu materi untuk melihat detail, rumus, dan contoh soal. Anda juga bisa mengunduh materi lengkap dalam format PDF.</p>
+                        <p>Gunakan tombol <b>"Kembali"</b> untuk kembali ke halaman sebelumnya yang Anda kunjungi.</p>
+                    `
+                },
+                visualisasi: {
+                    title: "Petunjuk Visualisasi",
+                    body: `
+                        <p class="mb-4">Bagian Visualisasi dirancang untuk membantu Anda memahami transformasi geometri secara interaktif.</p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li class="mb-2"><b>Masukkan Titik:</b> Klik tombol "Masukkan Titik" untuk membuka pop-up input koordinat. Anda bisa memasukkan hingga 3 titik per objek.</li>
+                            <li class="mb-2"><b>Tampilkan Titik:</b> Setelah memasukkan koordinat di pop-up, klik "Tampilkan Titik" untuk melihatnya di GeoGebra.</li>
+                            <li class="mb-2"><b>Reset Semua Titik:</b> Klik tombol ini untuk menghapus semua titik dan transformasi dari GeoGebra.</li>
+                            <li class="mb-2"><b>Pilih Transformasi:</b> Pilih jenis transformasi (Rotasi, Refleksi, Translasi, Dilatasi) dari tombol di samping GeoGebra.</li>
+                            <li class="mb-2"><b>Terapkan:</b> Ikuti petunjuk di pop-up untuk memasukkan parameter dan terapkan transformasi.</li>
+                            <li class="mb-2"><b>Interaksi GeoGebra:</b> Anda bisa mencubit atau menggeser di area GeoGebra untuk memperbesar/memperkecil atau memindahkan tampilan.</li>
+                        </ul>
+                        <p class="mb-4">Gunakan tombol <b>"Kembali"</b> untuk kembali ke halaman sebelumnya yang Anda kunjungi.</p>
+                        <p>Selamat bereksperimen!</p>
+                    `
+                },
+                latihan_soal: {
+                    title: "Petunjuk Latihan Soal",
+                    body: `
+                        <p class="mb-4">Uji pemahaman Anda di bagian Latihan Soal!</p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li class="mb-2">Anda akan menemukan berbagai jenis soal terkait translasi, rotasi, refleksi, dan dilatasi.</li>
+                            <li class="mb-2">Pilih salah satu opsi jawaban untuk setiap soal.</li>
+                            <li class="mb-2">Setelah menjawab semua soal, klik tombol "Cek Jawaban" untuk melihat skor Anda.</li>
+                            <li class="mb-2">Anda dapat mengulangi latihan kapan saja untuk meningkatkan pemahaman Anda.</li>
+                            <li class="mb-2">Jika semua soal sudah dijawab dan dalam waktu 1 hari setelah pengerjaan, tombol "Cetak Hasil Pengerjaan" akan muncul untuk mencetak hasil Anda ke PDF.</li>
+                        </ul>
+                        <p class="mb-4">Gunakan tombol <b>"Kembali"</b> untuk kembali ke halaman sebelumnya yang Anda kunjungi.</p>
+                        <p>Jangan ragu untuk kembali ke bagian Materi jika Anda membutuhkan tinjauan ulang.</p>
+                    `
+                },
+                tim_pengembang: {
+                    title: "Petunjuk Tim Pengembang",
+                    body: `
+                        <p class="mb-4">Halaman ini berisi informasi tentang individu atau tim yang mengembangkan media pembelajaran Geometri Transformasi ini.</p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li class="mb-2">Anda dapat menemukan nama-nama anggota tim, peran mereka, dan mungkin informasi kontak atau portofolio.</li>
+                            <li class="mb-2">Ini adalah tempat untuk mengenal lebih jauh siapa di balik proyek ini.</li>
+                        </ul>
+                        <p>Gunakan tombol <b>"Kembali"</b> untuk kembali ke halaman sebelumnya yang Anda kunjungi.</p>
+                    `
+                },
+                'visual-rotasi': {
+                    title: "Petunjuk Rotasi",
+                    body: `
+                        <p class="mb-4">Untuk melakukan rotasi (perputaran) pada titik atau bangun datar:</p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li class="mb-2"><b>Derajat Rotasi:</b> Masukkan besar sudut rotasi dalam derajat (misalnya, 90 untuk 90 derajat). Nilai positif akan memutar berlawanan arah jarum jam, nilai negatif akan memutar searah jarum jam.</li>
+                            <li class="mb-2"><b>Pusat Rotasi (x,y):</b> Masukkan koordinat titik pusat di mana objek akan berputar (misalnya, 0,0 untuk titik asal).</li>
+                            <li class="mb-2">Klik "Terapkan Rotasi" untuk melihat hasilnya di GeoGebra.</li>
+                        </ul>
+                        <p>Pastikan Anda sudah memasukkan titik objek sebelum menerapkan rotasi.</p>
+                    `
+                },
+                'visual-refleksi': {
+                    title: "Petunjuk Refleksi",
+                    body: `
+                        <p class="mb-4">Untuk melakukan refleksi (pencerminan) pada titik atau bangun datar:</p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li class="mb-2">Pilih salah satu opsi pencerminan yang tersedia (terhadap sumbu X, sumbu Y, titik asal, garis Y=X, garis Y=-X, garis X=k, atau garis Y=h).</li>
+                            <li class="mb-2">Jika Anda memilih "Garis X=k" atau "Garis Y=h", Anda akan diminta untuk memasukkan nilai 'k' atau 'h' melalui prompt.</li>
+                            <li class="mb-2">Setelah memilih opsi, refleksi akan langsung diterapkan pada objek Anda di GeoGebra.</li>
+                        </ul>
+                        <p>Pastikan Anda sudah memasukkan titik objek sebelum menerapkan refleksi.</p>
+                    `
+                },
+                'visual-translasi': {
+                    title: "Petunjuk Translasi",
+                    body: `
+                        <p class="mb-4">Untuk melakukan translasi (pergeseran) pada titik atau bangun datar:</p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li class="mb-2"><b>Translasi X:</b> Masukkan nilai pergeseran horizontal (nilai positif untuk ke kanan, negatif untuk ke kiri).</li>
+                            <li class="mb-2"><b>Translasi Y:</b> Masukkan nilai pergeseran vertikal (nilai positif untuk ke atas, negatif untuk ke bawah).</li>
+                            <li class="mb-2">Klik "Terapkan Translasi" untuk melihat hasilnya di GeoGebra.</li>
+                        </ul>
+                        <p>Pastikan Anda sudah memasukkan titik objek sebelum menerapkan translasi.</p>
+                    `
+                },
+                'visual-dilatasi': {
+                    title: "Petunjuk Dilatasi",
+                    body: `
+                        <p class="mb-4">Untuk melakukan dilatasi (perkalian) pada titik atau bangun datar:</p>
+                        <ul class="list-disc ml-5 mb-4">
+                            <li class="mb-2"><b>Pusat Dilatasi (a,b):</b> Masukkan koordinat titik pusat di mana objek akan diperbesar atau diperkecil (misalnya, <code>0,0</code> untuk titik asal, atau <code>1,2</code> untuk titik lain).</li>
+                            <li class="mb-2"><b>Faktor Skala:</b> Masukkan nilai faktor skala.
+                                <ul>
+                                    <li>Jika faktor skala > 1, objek akan diperbesar.</li>
+                                    <li>Jika 0 < faktor skala < 1, objek akan diperkecil.</li>
+                                    <li>Jika faktor skala < 0, objek akan diperbesar/diperkecil dan dibalik.</li>
+                                </ul>
+                            </li>
+                            <li class="mb-2">Klik "Terapkan Dilatasi" untuk melihat hasilnya di GeoGebra.</li>
+                        </ul>
+                        <p>Pastikan Anda sudah memasukkan titik objek sebelum menerapkan dilatasi.</p>
+                    `
+                }
+            };
+
+
+            const visualizationPopupContent = {
+                coordinate_input: {
+                    title: "Masukkan Titik Koordinat",
+                    guide: `
+                        <p class="mb-3 text-sm">Masukkan koordinat titik objek dalam format <code>(x,y)</code>. Anda bisa memasukkan hingga 3 titik per objek, dipisahkan dengan koma (contoh: <code>(1,2), (3,4), (5,6)</code>).</p>
+                        <p class="mb-4 text-sm">Setelah memasukkan, klik "Tampilkan Titik" untuk melihatnya di GeoGebra.</p>
+                    `,
+                    body: `
+                        <div class="coordinate-input-column mb-2">
+                            <label class="transform-input-label" for="coordinate-input-1">Titik Objek 1 (format: (x,y),...):</label>
+                            <input class="transform-input w-full" id="coordinate-input-1-universal" type="text" placeholder="contoh: (1,2), (3,4)">
+                        </div>
+                        <div class="coordinate-input-column mb-4">
+                            <label class="transform-input-label" for="coordinate-input-2">Titik Objek 2 (format: (x,y),...):</label>
+                            <input class="transform-input w-full" id="coordinate-input-2-universal" type="text" placeholder="contoh: (-1,-2), (-3,-4)">
+                        </div>
+                        <button class="transform-apply-btn w-full" id="apply-coordinate-input-btn-universal">Tampilkan Titik</button>
+                    `
+                },
+                rotasi: {
+                    title: "Rotasi",
+                    guide: `
+                        <p class="mb-3 text-sm">Masukkan besar sudut rotasi dalam derajat (misalnya, <code>90</code> untuk 90 derajat). Nilai positif memutar berlawanan arah jarum jam, nilai negatif memutar searah jarum jam.</p>
+                        <p class="mb-4 text-sm">Masukkan koordinat titik pusat rotasi (misalnya, <code>0,0</code> untuk titik asal).</p>
+                    `,
+                    body: `
+                        <label class="transform-input-label" for="rotasi-degree-input-universal">Derajat Rotasi:</label>
+                        <input class="transform-input w-full mb-2" id="rotasi-degree-input-universal" type="number" placeholder="e.g., 90">
+                        <label class="transform-input-label" for="rotasi-center-input-universal">Pusat Rotasi (x,y):</label>
+                        <input class="transform-input w-full mb-4" id="rotasi-center-input-universal" type="text" placeholder="e.g., 0,0">
+                        <button class="transform-apply-btn w-full" id="rotasi-apply-btn-universal">Terapkan Rotasi</button>
+                    `
+                },
+                translasi: {
+                    title: "Translasi",
+                    guide: `
+                        <p class="mb-3 text-sm">Masukkan nilai pergeseran horizontal (Translasi X) dan vertikal (Translasi Y).</p>
+                        <ul class="list-disc ml-5 mb-4 text-sm">
+                            <li>Nilai positif untuk X: ke kanan, negatif: ke kiri.</li>
+                            <li>Nilai positif untuk Y: ke atas, negatif: ke bawah.</li>
+                        </ul>
+                    `,
+                    body: `
+                        <label class="transform-input-label" for="translasi-x-input-universal">Translasi X:</label>
+                        <input class="transform-input w-full mb-2" id="translasi-x-input-universal" type="number" placeholder="e.g., 5">
+                        <label class="transform-input-label" for="translasi-y-input-universal">Translasi Y:</label>
+                        <input class="transform-input w-full mb-4" id="translasi-y-input-universal" type="number" placeholder="e.g., -3">
+                        <button class="transform-apply-btn w-full" id="translasi-apply-btn-universal">Terapkan Translasi</button>
+                    `
+                },
+                refleksi: {
+                    title: "Refleksi",
+                    guide: `
+                        <p class="mb-3 text-sm">Pilih salah satu opsi pencerminan yang tersedia. Jika Anda memilih "Garis X=k" atau "Garis Y=h", Anda akan diminta untuk memasukkan nilai 'k' atau 'h' melalui prompt.</p>
+                        <p class="mb-4 text-sm">Refleksi akan langsung diterapkan setelah Anda memilih opsi.</p>
+                    `,
+                    body: `
+                        <button class="refleksi-option-btn w-full mb-2" data-refleksi="sumbu-x">Terhadap Sumbu X</button>
+                        <button class="refleksi-option-btn w-full mb-2" data-refleksi="sumbu-y">Terhadap Sumbu Y</button>
+                        <button class="refleksi-option-btn w-full mb-2" data-refleksi="titik-asal">Terhadap Titik Asal (0,0)</button>
+                        <button class="refleksi-option-btn w-full mb-2" data-refleksi="garis-y-eq-x">Terhadap Garis Y = X</button>
+                        <button class="refleksi-option-btn w-full mb-2" data-refleksi="garis-y-eq-neg-x">Terhadap Garis Y = -X</button>
+                        <button class="refleksi-option-btn w-full mb-2" data-refleksi="garis-x-eq-k">Terhadap Garis X = k</button>
+                        <button class="refleksi-option-btn w-full mb-2" data-refleksi="garis-y-eq-h">Terhadap Garis Y = h</button>
+                    `
+                },
+                dilatasi: {
+                    title: "Dilatasi",
+                    guide: `
+                        <p class="mb-3 text-sm">Masukkan koordinat titik pusat dilatasi (misalnya, <code>0,0</code> untuk titik asal, atau <code>1,2</code> untuk titik lain).</p>
+                        <p class="mb-4 text-sm">Masukkan nilai faktor skala:</p>
+                        <ul class="list-disc ml-5 mb-4 text-sm">
+                            <li>Jika faktor skala > 1, objek akan diperbesar.</li>
+                            <li>Jika 0 < faktor skala < 1, objek akan diperkecil.</li>
+                            <li>Jika faktor skala < 0, objek akan diperbesar/diperkecil dan dibalik.</li>
+                        </ul>
+                    `,
+                    body: `
+                        <label class="transform-input-label" for="dilatasi-center-input-universal">Pusat Dilatasi (a,b):</label>
+                        <input class="transform-input w-full mb-2" id="dilatasi-center-input-universal" type="text" placeholder="e.g., 0,0">
+                        <label class="transform-input-label" for="dilatasi-scale-input-universal">Faktor Skala:</label>
+                        <input class="transform-input w-full mb-4" id="dilatasi-scale-input-universal" type="number" placeholder="e.g., 2">
+                        <button class="transform-apply-btn w-full" id="dilatasi-apply-btn-universal">Terapkan Dilatasi</button>
+                    `
+                }
+            };
+
+
+            function showSection(sectionToShow) {
+                const sections = [heroSection, materiSection, visualisasiSection, latihanSoalSection, timPengembangSection];
+                sections.forEach(section => {
+                    section.classList.add('hidden');
+                    section.classList.remove('flex', 'block');
+                });
+
+                if (sectionToShow === heroSection) {
+                    sectionToShow.classList.add('flex');
+                } else {
+                    sectionToShow.classList.add('block');
+                }
+                sectionToShow.classList.remove('hidden');
+
+                if (sectionToShow.id !== lastSection) {
+                    lastSection = sectionToShow.id;
+                }
+
+                updateBackButtonsVisibility(sectionToShow.id);
+
+                if (navLinks.classList.contains('active')) {
+                    mobileMenu.classList.remove('active');
+                    navLinks.classList.remove('active');
+                }
+            }
+
+            function updateBackButtonsVisibility(currentSectionId) {
+                const backButtons = document.querySelectorAll('.btn-back');
+                backButtons.forEach(btn => btn.classList.add('hidden'));
+
+                if (currentSectionId !== 'hero-section') {
+                    const currentBackButton = document.getElementById(`back-to-previous-${currentSectionId.replace('-section', '')}`);
+                    if (currentBackButton) {
+                        currentBackButton.classList.remove('hidden');
+                    }
+                }
+            }
+
+            mobileMenu.addEventListener('click', () => {
+                mobileMenu.classList.toggle('active');
+                navLinks.classList.toggle('active');
+            });
+
+            navBeranda.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(heroSection);
+            });
+
+            navMateri.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(materiSection);
+            });
+
+            navVisualisasi.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(visualisasiSection);
+            });
+
+            navLatihanSoal.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(latihanSoalSection);
+                checkPrintButtonVisibility();
+            });
+
+            navTimPengembang.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(timPengembangSection);
+            });
+
+            startLearningBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(materiSection);
+            });
+
+            document.querySelectorAll('.btn-back').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showSection(heroSection);
+                });
+            });
+
+            learnButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const materialType = button.dataset.material;
+                    const content = materialContent[materialType];
+
+                    if (content) {
+                        popupTitle.innerHTML = content.title;
+                        popupBody.innerHTML = content.body;
+                        materialPopup.classList.add('flex');
+
+                        const toggleSolutionBtn = popupBody.querySelector('.solution-container .toggle-solution-btn');
+                        if (toggleSolutionBtn) {
+                            toggleSolutionBtn.addEventListener('click', () => {
+                                const solutionText = popupBody.querySelector('.solution-container .solution-text');
+                                if (solutionText) {
+                                    solutionText.classList.toggle('show');
+                                    if (solutionText.classList.contains('show')) {
+                                        toggleSolutionBtn.textContent = 'Sembunyikan Jawaban';
+                                    } else {
+                                        toggleSolutionBtn.textContent = 'Lihat Jawaban';
+                                    }
+                                }
+                            });
+                        }
+
+                        if (typeof MathJax !== 'undefined') {
+                            MathJax.typesetPromise([popupBody]);
+                        }
+                    }
+                });
+            });
+
+            popupClose.addEventListener('click', () => {
+                materialPopup.classList.remove('flex');
+            });
+
+            materialPopup.addEventListener('click', (e) => {
+                if (e.target === materialPopup) {
+                    materialPopup.classList.remove('flex');
+                }
+            });
+
+            guideButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const guideFor = button.dataset.guideFor;
+                    const content = guideContent[guideFor];
+
+                    if (content) {
+                        universalPopupTitle.innerHTML = content.title;
+                        universalPopupBody.innerHTML = content.body;
+                        universalPopup.classList.add('flex');
+                    }
+                });
+            });
+
+            const visualTransformationButtons = document.querySelectorAll('.transformation-btn[data-guide-for]');
+            visualTransformationButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const guideFor = button.dataset.guideFor;
+                    const content = guideContent[guideFor];
+
+                    if (content) {
+                        universalPopupTitle.innerHTML = content.title;
+                        universalPopupBody.innerHTML = content.body;
+                        universalPopup.classList.add('flex');
+                    }
+                });
+            });
+
+
+            universalPopupClose.addEventListener('click', () => {
+                universalPopup.classList.remove('flex');
+            });
+
+            universalPopup.addEventListener('click', (e) => {
+                if (e.target === universalPopup) {
+                    universalPopup.classList.remove('flex');
+                }
+                if (typeof MathJax !== 'undefined') {
+                    MathJax.typesetPromise([universalPopupBody]);
+                }
+            });
+
+            updateBackButtonsVisibility(lastSection);
+
+
+            const openCoordinateInputPopupBtn = document.getElementById('open-coordinate-input-popup');
+            const resetAllPointsBtn = document.getElementById('reset-all-points');
+
+            const rotasiButton = document.getElementById('visual-rotasi-button');
+            const translasiButton = document.getElementById('visual-translasi-button');
+            const refleksiButton = document.getElementById('visual-refleksi-button');
+            const dilatasiButton = document.getElementById('visual-dilatasi-button');
+
+
+            let originalPoints1 = [];
+            let originalPoints2 = [];
+            let currentTransformedPoints1 = [];
+            let currentTransformedPoints2 = [];
+            let transformationCount = 0;
+
+            const traceColors = [
+                [255, 0, 0],
+                [0, 128, 0],
+                [0, 0, 255],
+                [255, 165, 0],
+                [128, 0, 128],
+                [0, 255, 255]
+            ];
+
+            function clearAllTransformedObjects(ggb) {
+                for (let t = 1; t <= transformationCount; t++) {
+                    for (let i = 0; i < 3; i++) {
+                        const label1 = String.fromCharCode(65 + i) + '_T' + t;
+                        const line1 = 'L' + (i + 1) + '_T' + t;
+                        if (ggb.exists(label1)) ggb.deleteObject(label1);
+                        if (ggb.exists(line1)) ggb.deleteObject(line1);
+
+                        const label2 = String.fromCharCode(65 + i) + '1' + '_T' + t;
+                        const line2 = 'L' + (i + 1) + '1' + '_T' + t;
+                        if (ggb.exists(label2)) ggb.deleteObject(label2);
+                        if (ggb.exists(line2)) ggb.deleteObject(line2);
+
+                        const traceLine1 = `TraceLine${String.fromCharCode(65 + i)}${t}`;
+                        if (ggb.exists(traceLine1)) ggb.deleteObject(traceLine1);
+                        const traceLine2 = `TraceLine${String.fromCharCode(65 + i)}1${t}`;
+                        if (ggb.exists(traceLine2)) ggb.deleteObject(traceLine2);
+                    }
+                }
+                if (ggb.exists('reflectionLine')) {
+                    ggb.deleteObject('reflectionLine');
+                }
+                transformationCount = 0;
+            }
+
+            function displayPoints(ggb, points, labelOffset = 0, isTransformed = false, objectIndex = 1, transformationSuffix = '', prevPoints = []) {
+                let pointColor;
+                let lineColor;
+
+                if (isTransformed) {
+                    const colorIndex = (transformationCount - 1) % traceColors.length;
+                    pointColor = traceColors[colorIndex];
+                    lineColor = pointColor;
+                } else {
+                    pointColor = objectIndex === 1 ? [0, 0, 0] : [255, 0, 0];
+                    lineColor = pointColor;
+                }
+
+                points.forEach((p, i) => {
+                    let label = String.fromCharCode(65 + i + labelOffset);
+                    if (objectIndex === 2) {
+                        label += '1';
+                    }
+                    label += transformationSuffix;
+
+                    ggb.evalCommand(`${label} = (${p[0]}, ${p[1]})`);
+                    ggb.setLabelVisible(label, true);
+                    ggb.setPointStyle(label, 5);
+                    ggb.setColor(label, pointColor[0], pointColor[1], pointColor[2]);
+                    ggb.setPointSize(label, 6);
+                    ggb.setLabelStyle(label, 2);
+
+                    if (isTransformed && prevPoints.length > i) {
+                        const prevLabel = String.fromCharCode(65 + i + labelOffset);
+                        if (objectIndex === 2) {
+                            prevLabel += '1';
+                        }
+                        const traceLineName = `TraceLine${prevLabel}${transformationCount}`;
+                        ggb.evalCommand(`${traceLineName} = Segment((${prevPoints[i][0]}, ${prevPoints[i][1]}), ${label})`);
+                        ggb.setColor(traceLineName, 255, 0, 0);
+                        ggb.setLineThickness(traceLineName, 2);
+                        ggb.setLineStyle(traceLineName, 1);
+                        ggb.setLabelVisible(traceLineName, false);
+                    }
+                });
+
+                if (points.length >= 2) {
+                    const maxLines = points.length === 3 ? 3 : points.length - 1;
+                    for (let i = 0; i < maxLines; i++) {
+                        let p1Label = String.fromCharCode(65 + i + labelOffset);
+                        let p2Label = String.fromCharCode(65 + (i === 2 ? 0 : i + 1) + labelOffset);
+                        if (objectIndex === 2) {
+                            p1Label += '1';
+                            p2Label += '1';
+                        }
+                        p1Label += transformationSuffix;
+                        p2Label += transformationSuffix;
+
+                        let lineLabel = `L${i + 1}`;
+                        if (objectIndex === 2) {
+                            lineLabel += '1';
+                        }
+                        lineLabel += transformationSuffix;
+
+                        ggb.evalCommand(`${lineLabel} = Segment(${p1Label}, ${p2Label})`);
+                        ggb.setLineThickness(lineLabel, 3);
+                        ggb.setColor(lineLabel, lineColor[0], lineColor[1], lineColor[2]);
+                        ggb.setLabelVisible(lineLabel, false);
+                    }
+                }
+            }
+
+            function parseCoordinates(input) {
+                return input
+                    .split('),')
+                    .map(p => p.replace(/[()]/g, '').trim())
+                    .map(p => p.split(',').map(Number))
+                    .filter(p => p.length === 2 && !isNaN(p[0]) && !isNaN(p[1]));
+            }
+
+            const ggbApplet = new GGBApplet({
+                appName: 'geometry',
+                showToolBar: false,
+                showAlgebraInput: false,
+                showMenuBar: false,
+                enableShiftDragZoom: true,
+                enableLabelDrags: true,
+                width: 700,
+                height: 450,
+                borderColor: '#2563eb',
+            }, true);
+
+            window.addEventListener('load', () => {
+                ggbApplet.inject('ggb-applet');
+                const ggb = ggbApplet.getAppletObject();
+                ggb.setGridVisible(true);
+                ggb.setAxesVisible(true, true);
+            });
+
+            openCoordinateInputPopupBtn.addEventListener('click', () => {
+                const content = visualizationPopupContent.coordinate_input;
+                universalPopupTitle.innerHTML = content.title;
+                universalPopupBody.innerHTML = content.guide + content.body;
+                universalPopup.classList.add('flex');
+
+                const applyBtn = document.getElementById('apply-coordinate-input-btn-universal');
+                if (applyBtn) {
+                    applyBtn.onclick = () => {
+                        const input1 = document.getElementById('coordinate-input-1-universal').value.trim();
+                        const input2 = document.getElementById('coordinate-input-2-universal').value.trim();
+
+                        if (!input1 && !input2) {
+                            alert('Silakan masukkan setidaknya satu titik koordinat untuk Objek 1 atau Objek 2.');
+                            return;
+                        }
+
+                        const ggb = ggbApplet.getAppletObject();
+                        ggb.reset();
+                        ggb.setGridVisible(true);
+                        ggb.setAxesVisible(true, true);
+                        transformationCount = 0;
+
+                        originalPoints1 = [];
+                        currentTransformedPoints1 = [];
+                        originalPoints2 = [];
+                        currentTransformedPoints2 = [];
+
+                        if (input1) {
+                            const points1 = parseCoordinates(input1);
+                            if (points1.length === 0) {
+                                alert('Format titik koordinat Objek 1 tidak valid.');
+                                return;
+                            }
+                            originalPoints1 = points1.slice(0, 3);
+                            currentTransformedPoints1 = [...originalPoints1];
+                            displayPoints(ggb, originalPoints1, 0, false, 1);
+                        }
+
+                        if (input2) {
+                            const points2 = parseCoordinates(input2);
+                            if (points2.length === 0) {
+                                alert('Format titik koordinat Objek 2 tidak valid.');
+                                return;
+                            }
+                            originalPoints2 = points2.slice(0, 3);
+                            currentTransformedPoints2 = [...points2];
+                            displayPoints(ggb, originalPoints2, 0, false, 2);
+                        }
+
+                        universalPopup.classList.remove('flex');
+                    };
+                }
+            });
+
+            resetAllPointsBtn.addEventListener('click', () => {
+                const ggb = ggbApplet.getAppletObject();
+                ggb.reset();
+                ggb.setGridVisible(true);
+                ggb.setAxesVisible(true, true);
+                originalPoints1 = [];
+                originalPoints2 = [];
+                currentTransformedPoints1 = [];
+                currentTransformedPoints2 = [];
+                transformationCount = 0;
+                const input1 = document.getElementById('coordinate-input-1-universal');
+                const input2 = document.getElementById('coordinate-input-2-universal');
+                if (input1) input1.value = '';
+                if (input2) input2.value = '';
+            });
+
+
+            rotasiButton.addEventListener('click', () => {
+                if (currentTransformedPoints1.length === 0 && currentTransformedPoints2.length === 0) {
+                    alert("Silakan masukkan titik terlebih dahulu menggunakan tombol 'Masukkan Titik'.");
+                    return;
+                }
+                const content = visualizationPopupContent.rotasi;
+                universalPopupTitle.innerHTML = content.title;
+                universalPopupBody.innerHTML = content.guide + content.body;
+                universalPopup.classList.add('flex');
+
+                const rotasiDegreeInput = document.getElementById('rotasi-degree-input-universal');
+                const rotasiCenterInput = document.getElementById('rotasi-center-input-universal');
+                const rotasiApplyBtn = document.getElementById('rotasi-apply-btn-universal');
+
+                rotasiDegreeInput.value = '';
+                rotasiCenterInput.value = '0,0';
+
+                rotasiApplyBtn.onclick = () => {
+                    const degree = rotasiDegreeInput.value.trim();
+                    const centerVal = rotasiCenterInput.value.trim();
+
+                    if (degree === '' || isNaN(degree) || degree < -360 || degree > 360) {
+                        alert('Masukkan derajat rotasi yang valid antara -360 hingga 360.');
+                        rotasiDegreeInput.focus();
+                        return;
+                    }
+
+                    if (!centerVal) {
+                        alert("Masukkan koordinat titik pusat rotasi dalam format x,y.");
+                        rotasiCenterInput.focus();
+                        return;
+                    }
+
+                    const centerParts = centerVal.split(',').map(s => s.trim());
+                    if (centerParts.length !== 2) {
+                        alert("Format titik pusat tidak valid. Gunakan format x,y.");
+                        rotasiCenterInput.focus();
+                        return;
+                    }
+                    const centerX = Number(centerParts[0]);
+                    const centerY = Number(centerParts[1]);
+                    if (isNaN(centerX) || isNaN(centerY)) {
+                        alert("Koordinat titik pusat harus angka valid.");
+                        rotasiCenterInput.focus();
+                        return;
+                    }
+
+                    const ggb = ggbApplet.getAppletObject();
+                    animateRotation(ggb, Number(degree), centerX, centerY);
+                    universalPopup.classList.remove('flex');
+                };
+            });
+
+            function degreesToRadians(deg) {
+                return (deg * Math.PI) / 180;
+            }
+
+            function animateRotation(ggb, degree, centerX, centerY, duration = 800) {
+                const radians = degreesToRadians(degree);
+                const steps = 30;
+                const interval = duration / steps;
+                let currentStep = 0;
+
+                transformationCount++;
+                const currentSuffix = '_T' + transformationCount;
+
+                const pointsToAnimate1 = [...currentTransformedPoints1];
+                const pointsToAnimate2 = [...currentTransformedPoints2];
+
+                function step() {
+                    currentStep++;
+                    const t = currentStep / steps;
+
+                    const nextTransformedPoints1 = [];
+                    pointsToAnimate1.forEach((p, index) => {
+                        const currAngle = radians * t;
+                        const c = Math.cos(currAngle);
+                        const s = Math.sin(currAngle);
+
+                        const translatedX = p[0] - centerX;
+                        const translatedY = p[1] - centerY;
+
+                        const rotatedX = translatedX * c - translatedY * s;
+                        const rotatedY = translatedX * s + translatedY * c;
+
+                        const newX = rotatedX + centerX;
+                        const newY = rotatedY + centerY;
+                        nextTransformedPoints1.push([newX, newY]);
+                    });
+
+                    const nextTransformedPoints2 = [];
+                    pointsToAnimate2.forEach((p, index) => {
+                        const currAngle = radians * t;
+                        const c = Math.cos(currAngle);
+                        const s = Math.sin(currAngle);
+
+                        const translatedX = p[0] - centerX;
+                        const translatedY = p[1] - centerY;
+
+                        const rotatedX = translatedX * c - translatedY * s;
+                        const rotatedY = translatedX * s + translatedY * c;
+
+                        const newX = rotatedX + centerX;
+                        const newY = rotatedY + centerY;
+                        nextTransformedPoints2.push([newX, newY]);
+                    });
+
+                    if (currentStep > 1) {
+                        for (let i = 0; i < pointsToAnimate1.length; i++) {
+                            ggb.deleteObject(String.fromCharCode(65 + i) + currentSuffix);
+                            if (i < pointsToAnatailkanPoints1.length - 1 || (pointsToAnimate1.length === 3 && i === 2)) {
+                                ggb.deleteObject(`L${i + 1}${currentSuffix}`);
+                            }
+                        }
+                        for (let i = 0; i < pointsToAnimate2.length; i++) {
+                            ggb.deleteObject(String.fromCharCode(65 + i) + '1' + currentSuffix);
+                            if (i < pointsToAnimate2.length - 1 || (pointsToAnimate2.length === 3 && i === 2)) {
+                                ggb.deleteObject(`L${i + 1}1${currentSuffix}`);
+                            }
+                        }
+                    }
+
+                    displayPoints(ggb, nextTransformedPoints1, 0, true, 1, currentSuffix, pointsToAnimate1);
+                    displayPoints(ggb, nextTransformedPoints2, 0, true, 2, currentSuffix, pointsToAnimate2);
+
+                    if (currentStep < steps) {
+                        setTimeout(step, interval);
+                    } else {
+                        currentTransformedPoints1 = nextTransformedPoints1;
+                        currentTransformedPoints2 = nextTransformedPoints2;
+                        displayPoints(ggb, currentTransformedPoints1, 0, true, 1, currentSuffix, pointsToAnimate1);
+                        displayPoints(ggb, currentTransformedPoints2, 0, true, 2, currentSuffix, pointsToAnimate2);
+                    }
+                }
+                step();
+            }
+
+            translasiButton.addEventListener('click', () => {
+                if (currentTransformedPoints1.length === 0 && currentTransformedPoints2.length === 0) {
+                    alert("Silakan masukkan titik terlebih dahulu menggunakan tombol 'Masukkan Titik'.");
+                    return;
+                }
+                const content = visualizationPopupContent.translasi;
+                universalPopupTitle.innerHTML = content.title;
+                universalPopupBody.innerHTML = content.guide + content.body;
+                universalPopup.classList.add('flex');
+
+                const translasiXInput = document.getElementById('translasi-x-input-universal');
+                const translasiYInput = document.getElementById('translasi-y-input-universal');
+                const translasiApplyBtn = document.getElementById('translasi-apply-btn-universal');
+
+                translasiXInput.value = '';
+                translasiYInput.value = '';
+
+                translasiApplyBtn.onclick = () => {
+                    const deltaX = translasiXInput.value.trim();
+                    const deltaY = translasiYInput.value.trim();
+                    if (
+                        deltaX === '' || isNaN(deltaX) ||
+                        deltaY === '' || isNaN(deltaY)
+                    ) {
+                        alert('Masukkan nilai translasi X dan Y yang valid.');
+                        if (deltaX === '' || isNaN(deltaX)) {
+                            translasiXInput.focus();
+                        } else {
+                            translasiYInput.focus();
+                        }
+                        return;
+                    }
+                    const ggb = ggbApplet.getAppletObject();
+                    animateTranslation(ggb, Number(deltaX), Number(deltaY));
+                    universalPopup.classList.remove('flex');
+                };
+            });
+
+            function animateTranslation(ggb, deltaX, deltaY, duration = 800) {
+                const steps = 30;
+                const interval = duration / steps;
+                let currentStep = 0;
+
+                transformationCount++;
+                const currentSuffix = '_T' + transformationCount;
+
+                const pointsToAnimate1 = [...currentTransformedPoints1];
+                const pointsToAnimate2 = [...currentTransformedPoints2];
+
+                function step() {
+                    currentStep++;
+                    const t = currentStep / steps;
+
+                    const nextTransformedPoints1 = [];
+                    pointsToAnimate1.forEach((p, index) => {
+                        const newX = p[0] + deltaX * t;
+                        const newY = p[1] + deltaY * t;
+                        nextTransformedPoints1.push([newX, newY]);
+                    });
+
+                    const nextTransformedPoints2 = [];
+                    pointsToAnimate2.forEach((p, index) => {
+                        const newX = p[0] + deltaX * t;
+                        const newY = p[1] + deltaY * t;
+                        nextTransformedPoints2.push([newX, newY]);
+                    });
+
+                    if (currentStep > 1) {
+                        for (let i = 0; i < pointsToAnimate1.length; i++) {
+                            ggb.deleteObject(String.fromCharCode(65 + i) + currentSuffix);
+                            if (i < pointsToAnimate1.length - 1 || (pointsToAnimate1.length === 3 && i === 2)) {
+                                ggb.deleteObject(`L${i + 1}${currentSuffix}`);
+                            }
+                        }
+                        for (let i = 0; i < pointsToAnimate2.length; i++) {
+                            ggb.deleteObject(String.fromCharCode(65 + i) + '1' + currentSuffix);
+                            if (i < pointsToAnimate2.length - 1 || (pointsToAnimate2.length === 3 && i === 2)) {
+                                ggb.deleteObject(`L${i + 1}1${currentSuffix}`);
+                            }
+                        }
+                    }
+
+                    displayPoints(ggb, nextTransformedPoints1, 0, true, 1, currentSuffix, pointsToAnimate1);
+                    displayPoints(ggb, nextTransformedPoints2, 0, true, 2, currentSuffix, pointsToAnimate2);
+
+                    if (currentStep < steps) {
+                        setTimeout(step, interval);
+                    } else {
+                        currentTransformedPoints1 = nextTransformedPoints1;
+                        currentTransformedPoints2 = nextTransformedPoints2;
+                        displayPoints(ggb, currentTransformedPoints1, 0, true, 1, currentSuffix, pointsToAnimate1);
+                        displayPoints(ggb, currentTransformedPoints2, 0, true, 2, currentSuffix, pointsToAnimate2);
+                    }
+                }
+                step();
+            }
+
+            refleksiButton.addEventListener('click', () => {
+                if (currentTransformedPoints1.length === 0 && currentTransformedPoints2.length === 0) {
+                    alert("Silakan masukkan titik terlebih dahulu menggunakan tombol 'Masukkan Titik'.");
+                    return;
+                }
+                const content = visualizationPopupContent.refleksi;
+                universalPopupTitle.innerHTML = content.title;
+                universalPopupBody.innerHTML = content.guide + content.body;
+                universalPopup.classList.add('flex');
+
+                const refleksiOptionButtons = document.querySelectorAll('#universal-popup-body button.refleksi-option-btn');
+                refleksiOptionButtons.forEach(btn => {
+                    btn.onclick = () => {
+                        const type = btn.dataset.refleksi;
+                        let param = null;
+
+                        if (type === 'garis-x-eq-k') {
+                            const inputK = prompt("Masukkan nilai k untuk garis x = k:", "0");
+                            if (inputK === null) return;
+                            const valK = Number(inputK.trim());
+                            if (isNaN(valK)) {
+                                alert("Nilai k tidak valid.");
+                                return;
+                            }
+                            param = valK;
+                        } else if (type === 'garis-y-eq-h') {
+                            const inputH = prompt("Masukkan nilai h untuk garis y = h:", "0");
+                            if (inputH === null) return;
+                            const valH = Number(inputH.trim());
+                            if (isNaN(valH)) {
+                                alert("Nilai h tidak valid.");
+                                return;
+                            }
+                            param = valH;
+                        }
+
+                        const ggb = ggbApplet.getAppletObject();
+                        animateReflection(ggb, type, param);
+                        universalPopup.classList.remove('flex');
+                    };
+                });
+            });
+
+            function animateReflection(ggb, type, param = null, duration = 800) {
+                const steps = 30;
+                const interval = duration / steps;
+                let currentStep = 0;
+
+                if (ggb.exists('reflectionLine')) {
+                    ggb.deleteObject('reflectionLine');
+                }
+
+                let lineCommand = '';
+                switch (type) {
+                    case 'sumbu-x':
+                        lineCommand = 'y = 0';
+                        break;
+                    case 'sumbu-y':
+                        lineCommand = 'x = 0';
+                        break;
+                    case 'garis-y-eq-x':
+                        lineCommand = 'y = x';
+                        break;
+                    case 'garis-y-eq-neg-x':
+                        lineCommand = 'y = -x';
+                        break;
+                    case 'garis-x-eq-k':
+                        lineCommand = `x = ${param}`;
+                        break;
+                    case 'garis-y-eq-h':
+                        lineCommand = `y = ${param}`;
+                        break;
+                    case 'titik-asal':
+                        lineCommand = '';
+                        break;
+                }
+                if (lineCommand) {
+                    ggb.evalCommand(`reflectionLine: ${lineCommand}`);
+                    ggb.setColor('reflectionLine', 0, 0, 0);
+                    ggb.setLineThickness('reflectionLine', 5);
+                    ggb.setLineStyle('reflectionLine', 0);
+                }
+
+
+                transformationCount++;
+                const currentSuffix = '_T' + transformationCount;
+
+                const pointsToAnimate1 = [...currentTransformedPoints1];
+                const pointsToAnimate2 = [...currentTransformedPoints2];
+
+                function reflectPoint(x, y, type, param) {
+                    switch (type) {
+                        case 'sumbu-x':
+                            return { x: x, y: -y };
+                        case 'sumbu-y':
+                            return { x: -x, y: y };
+                        case 'titik-asal':
+                            return { x: -x, y: -y };
+                        case 'garis-y-eq-x':
+                            return { x: y, y: x };
+                        case 'garis-y-eq-neg-x':
+                            return { x: -y, y: -x };
+                        case 'garis-x-eq-k':
+                            return { x: 2 * param - x, y: y };
+                        case 'garis-y-eq-h':
+                            return { x: x, y: 2 * param - y };
+                        default:
+                            return { x: x, y: y };
+                    }
+                }
+
+                function step() {
+                    currentStep++;
+                    const t = currentStep / steps;
+
+                    const nextTransformedPoints1 = [];
+                    pointsToAnimate1.forEach((p, index) => {
+                        const ref = reflectPoint(p[0], p[1], type, param);
+
+                        const newX = p[0] + t * (ref.x - p[0]);
+                        const newY = p[1] + t * (ref.y - p[1]);
+                        nextTransformedPoints1.push([newX, newY]);
+                    });
+
+                    const nextTransformedPoints2 = [];
+                    pointsToAnimate2.forEach((p, index) => {
+                        const ref = reflectPoint(p[0], p[1], type, param);
+
+                        const newX = p[0] + t * (ref.x - p[0]);
+                        const newY = p[1] + t * (ref.y - p[1]);
+                        nextTransformedPoints2.push([newX, newY]);
+                    });
+
+                    if (currentStep > 1) {
+                        for (let i = 0; i < pointsToAnimate1.length; i++) {
+                            ggb.deleteObject(String.fromCharCode(65 + i) + currentSuffix);
+                            if (i < pointsToAnimate1.length - 1 || (pointsToAnimate1.length === 3 && i === 2)) {
+                                ggb.deleteObject(`L${i + 1}${currentSuffix}`);
+                            }
+                        }
+                        for (let i = 0; i < pointsToAnimate2.length; i++) {
+                            ggb.deleteObject(String.fromCharCode(65 + i) + '1' + currentSuffix);
+                            if (i < pointsToAnimate2.length - 1 || (pointsToAnimate2.length === 3 && i === 2)) {
+                                ggb.deleteObject(`L${i + 1}1${currentSuffix}`);
+                            }
+                        }
+                    }
+
+                    displayPoints(ggb, nextTransformedPoints1, 0, true, 1, currentSuffix, pointsToAnimate1);
+                    displayPoints(ggb, nextTransformedPoints2, 0, true, 2, currentSuffix, pointsToAnimate2);
+
+                    if (currentStep < steps) {
+                        setTimeout(step, interval);
+                    } else {
+                        currentTransformedPoints1 = nextTransformedPoints1;
+                        currentTransformedPoints2 = nextTransformedPoints2;
+                        displayPoints(ggb, currentTransformedPoints1, 0, true, 1, currentSuffix, pointsToAnimate1);
+                        displayPoints(ggb, currentTransformedPoints2, 0, true, 2, currentSuffix, pointsToAnimate2);
+                    }
+                }
+                step();
+            };
+
+            dilatasiButton.addEventListener('click', () => {
+                if (currentTransformedPoints1.length === 0 && currentTransformedPoints2.length === 0) {
+                    alert("Silakan masukkan titik terlebih dahulu menggunakan tombol 'Masukkan Titik'.");
+                    return;
+                }
+                const content = visualizationPopupContent.dilatasi;
+                universalPopupTitle.innerHTML = content.title;
+                universalPopupBody.innerHTML = content.guide + content.body;
+                universalPopup.classList.add('flex');
+
+                const dilatasiCenterInput = document.getElementById('dilatasi-center-input-universal');
+                const dilatasiScaleInput = document.getElementById('dilatasi-scale-input-universal');
+                const dilatasiApplyBtn = document.getElementById('dilatasi-apply-btn-universal');
+
+                dilatasiCenterInput.value = '0,0';
+                dilatasiScaleInput.value = '';
+
+                dilatasiApplyBtn.onclick = () => {
+                    const centerVal = dilatasiCenterInput.value.trim();
+                    const scaleVal = dilatasiScaleInput.value.trim();
+
+                    if (!centerVal) {
+                        alert("Masukkan koordinat titik pusat dilatasi dalam format x,y.");
+                        dilatasiCenterInput.focus();
+                        return;
+                    }
+
+                    const centerParts = centerVal.split(',').map(s => s.trim());
+                    if (centerParts.length !== 2) {
+                        alert("Format titik pusat tidak valid. Gunakan format x,y.");
+                        dilatasiCenterInput.focus();
+                        return;
+                    }
+                    const centerX = Number(centerParts[0]);
+                    const centerY = Number(centerParts[1]);
+                    if (isNaN(centerX) || isNaN(centerY)) {
+                        alert("Koordinat titik pusat harus angka valid.");
+                        dilatasiCenterInput.focus();
+                        return;
+                    }
+
+                    if (!scaleVal) {
+                        alert("Masukkan faktor skala dilatasi.");
+                        dilatasiScaleInput.focus();
+                        return;
+                    }
+                    const scaleNum = Number(scaleVal);
+                    if (isNaN(scaleNum)) {
+                        alert("Faktor skala harus angka valid.");
+                        dilatasiScaleInput.focus();
+                        return;
+                    }
+
+                    const ggb = ggbApplet.getAppletObject();
+                    animateDilation(ggb, centerX, centerY, scaleNum);
+                    universalPopup.classList.remove('flex');
+                };
+            });
+
+            function animateDilation(ggb, centerX, centerY, scale, duration = 800) {
+                const steps = 30;
+                const interval = duration / steps;
+                let currentStep = 0;
+
+                transformationCount++;
+                const currentSuffix = '_T' + transformationCount;
+
+                const pointsToAnimate1 = [...currentTransformedPoints1];
+                const pointsToAnimate2 = [...currentTransformedPoints2];
+
+                function step() {
+                    currentStep++;
+                    const t = currentStep / steps;
+
+                    const currScale = 1 + t * (scale - 1);
+
+                    const nextTransformedPoints1 = [];
+                    pointsToAnimate1.forEach((p, index) => {
+                        const ox = p[0];
+                        const oy = p[1];
+
+                        let newX, newY;
+                        if (centerX === 0 && centerY === 0) {
+                            newX = currScale * ox;
+                            newY = currScale * oy;
+                        } else {
+                            newX = currScale * (ox - centerX) + centerX;
+                            newY = currScale * (oy - centerY) + centerY;
+                        }
+                        nextTransformedPoints1.push([newX, newY]);
+                    });
+
+                    const nextTransformedPoints2 = [];
+                    pointsToAnimate2.forEach((p, index) => {
+                        const ox = p[0];
+                        const oy = p[1];
+
+                        let newX, newY;
+                        if (centerX === 0 && centerY === 0) {
+                            newX = currScale * ox;
+                            newY = currScale * oy;
+                        } else {
+                            newX = currScale * (oy - centerX) + centerX;
+                            newY = currScale * (oy - centerY) + centerY;
+                        }
+                        nextTransformedPoints2.push([newX, newY]);
+                    });
+
+                    if (currentStep > 1) {
+                        for (let i = 0; i < pointsToAnimate1.length; i++) {
+                            ggb.deleteObject(String.fromCharCode(65 + i) + currentSuffix);
+                            if (i < pointsToAnimate1.length - 1 || (pointsToAnimate1.length === 3 && i === 2)) {
+                                ggb.deleteObject(`L${i + 1}${currentSuffix}`);
+                            }
+                        }
+                        for (let i = 0; i < pointsToAnimate2.length; i++) {
+                            ggb.deleteObject(String.fromCharCode(65 + i) + '1' + currentSuffix);
+                            if (i < pointsToAnimate2.length - 1 || (pointsToAnimate2.length === 3 && i === 2)) {
+                                ggb.deleteObject(`L${i + 1}1${currentSuffix}`);
+                            }
+                        }
+                    }
+
+                    displayPoints(ggb, nextTransformedPoints1, 0, true, 1, currentSuffix, pointsToAnimate1);
+                    displayPoints(ggb, nextTransformedPoints2, 0, true, 2, currentSuffix, pointsToAnimate2);
+
+                    if (currentStep < steps) {
+                        setTimeout(step, interval);
+                    } else {
+                        currentTransformedPoints1 = nextTransformedPoints1;
+                        currentTransformedPoints2 = nextTransformedPoints2;
+                        displayPoints(ggb, currentTransformedPoints1, 0, true, 1, currentSuffix, pointsToAnimate1);
+                        displayPoints(ggb, currentTransformedPoints2, 0, true, 2, currentSuffix, pointsToAnimate2);
+                    }
+                }
+                step();
+            }
+
+            const latihanForm = document.querySelector('.latihan-form');
+            const latihanResult = document.getElementById('latihan-result');
+            const submitLatihanBtn = document.getElementById('submit-latihan-btn');
+            const printLatihanBtn = document.getElementById('print-latihan-btn');
+
+            const correctAnswers = {
+                q1: 'a1', q2: 'a2', q3: 'a3', q4: 'a4', q5: 'a5',   
+                q6: 'a6', q7: 'a7', q8: 'a8', q9: 'a9', q10: 'a10', 
+                q11: 'a11', q12: 'b12', q13: 'b13', q14: 'a14', q15: 'a15', 
+                q16: 'a16', q17: 'a17', q18: 'a18', q19: 'a19', q20: 'a20' 
+            };
+
+            const answerExplanations = {
+                q1: {
+                    correct: "Benar! Translasi (x,y) oleh (a,b) adalah (x+a, y+b). Jadi (1+3, 2+4) = (4,6).",
+                    incorrect: "Salah. Untuk translasi, tambahkan komponen x dan y dari vektor ke koordinat titik. (1+3, 2+4) = (4,6)."
+                },
+                q2: {
+                    correct: "Benar! Translasi (x,y) oleh (a,b) adalah (x+a, y+b). Jadi (5-2, -1+3) = (3,2).",
+                    incorrect: "Salah. Untuk translasi, tambahkan komponen x dan y dari vektor ke koordinat titik. (5-2, -1+3) = (3,2)."
+                },
+                q3: {
+                    correct: "Benar! Translasi (x,y) oleh (a,b) adalah (x+a, y+b). Jadi (-3+5, 4-2) = (2,2).",
+                    incorrect: "Salah. Untuk translasi, tambahkan komponen x dan y dari vektor ke koordinat titik. (-3+5, 4-2) = (2,2)."
+                },
+                q4: {
+                    correct: "Benar! Translasi (x,y) oleh (a,b) adalah (x+a, y+b). Jadi (0+7, 0-3) = (7,-3).",
+                    incorrect: "Salah. Untuk translasi, tambahkan komponen x dan y dari vektor ke koordinat titik. (0+7, 0-3) = (7,-3)."
+                },
+                q5: {
+                    correct: "Benar! Translasi (x,y) oleh (a,b) adalah (x+a, y+b). Jadi (6-5, -2+5) = (1,3).",
+                    incorrect: "Salah. Untuk translasi, tambahkan komponen x dan y dari vektor ke koordinat titik. (6-5, -2+5) = (1,3)."
+                },
+                q6: {
+                    correct: "Benar! Rotasi 90° berlawanan arah jarum jam terhadap (0,0) mengubah (x,y) menjadi (-y,x). Jadi (2,3) menjadi (-3,2).",
+                    incorrect: "Salah. Rotasi 90° berlawanan arah jarum jam terhadap (0,0) mengubah (x,y) menjadi (-y,x)."
+                },
+                q7: {
+                    correct: "Benar! Rotasi 180° terhadap (0,0) mengubah (x,y) menjadi (-x,-y). Jadi (1,0) menjadi (-1,0).",
+                    incorrect: "Salah. Rotasi 180° terhadap (0,0) mengubah (x,y) menjadi (-x,-y)."
+                },
+                q8: {
+                    correct: "Benar! Rotasi 270° berlawanan arah jarum jam (atau -90° searah jarum jam) terhadap (0,0) mengubah (x,y) menjadi (y,-x). Jadi (3,4) menjadi (4,-3).",
+                    incorrect: "Salah. Rotasi 270° berlawanan arah jarum jam terhadap (0,0) mengubah (x,y) menjadi (y,-x)."
+                },
+                q9: {
+                    correct: "Benar! Rotasi -90° (searah jarum jam) terhadap (0,0) mengubah (x,y) menjadi (y,-x). Jadi (0,5) menjadi (5,0).",
+                    incorrect: "Salah. Rotasi -90° (searah jarum jam) terhadap (0,0) mengubah (x,y) menjadi (y,-x)."
+                },
+                q10: {
+                    correct: "Benar! Rotasi 0° berarti titik tidak berubah. Jadi (1,1) tetap (1,1).",
+                    incorrect: "Salah. Rotasi 0° berarti titik tidak berubah."
+                },
+                q11: {
+                    correct: "Benar! Refleksi terhadap sumbu x mengubah (x,y) menjadi (x,-y). Jadi (3,4) menjadi (3,-4).",
+                    incorrect: "Salah. Refleksi terhadap sumbu x mengubah (x,y) menjadi (x,-y)."
+                },
+                q12: {
+                    correct: "Benar! Refleksi terhadap sumbu y mengubah (x,y) menjadi (-x,y). Jadi (-2,5) menjadi (2,5).",
+                    incorrect: "Salah. Refleksi terhadap sumbu y mengubah (x,y) menjadi (-x,y)."
+                },
+                q13: {
+                    correct: "Benar! Refleksi terhadap garis y=x mengubah (x,y) menjadi (y,x). Jadi (4,-3) menjadi (-3,4).",
+                    incorrect: "Salah. Refleksi terhadap garis y=x mengubah (x,y) menjadi (y,x)."
+                },
+                q14: {
+                    correct: "Benar! Refleksi terhadap garis y=-x mengubah (x,y) menjadi (-y,-x). Jadi (0,7) menjadi (-7,0).",
+                    incorrect: "Salah. Refleksi terhadap garis y=-x mengubah (x,y) menjadi (-y,-x)."
+                },
+                q15: {
+                    correct: "Benar! Refleksi terhadap titik asal (0,0) mengubah (x,y) menjadi (-x,-y). Jadi (5,-1) menjadi (-5,1).",
+                    incorrect: "Salah. Refleksi terhadap titik asal (0,0) mengubah (x,y) menjadi (-x,-y)."
+                },
+                q16: {
+                    correct: "Benar! Dilatasi dengan pusat (0,0) dan faktor skala k mengubah (x,y) menjadi (kx,ky). Jadi (2*1, 2*2) = (2,4).",
+                    incorrect: "Salah. Dilatasi dengan pusat (0,0) dan faktor skala k mengubah (x,y) menjadi (kx,ky)."
+                },
+                q17: {
+                    correct: "Benar! Dilatasi dengan pusat (a,b) dan faktor skala k mengubah (x,y) menjadi (k(x-a)+a, k(y-b)+b). Jadi (3(3-1)+1, 3(4-1)+1) = (7,10).",
+                    incorrect: "Salah. Dilatasi dengan pusat (a,b) dan faktor skala k mengubah (x,y) menjadi (k(x-a)+a, k(y-b)+b)."
+                },
+                q18: {
+                    correct: "Benar! Dilatasi titik pusat (0,0) dengan faktor skala berapapun akan tetap di (0,0).",
+                    incorrect: "Salah. Dilatasi titik pusat (0,0) dengan faktor skala berapapun akan tetap di (0,0)."
+                },
+                q19: {
+                    correct: "Benar! Dilatasi dengan faktor skala 0 akan memindahkan titik ke pusat dilatasi. Jadi (2,-1).",
+                    incorrect: "Salah. Dilatasi dengan faktor skala 0 akan memindahkan titik ke pusat dilatasi."
+                },
+                q20: {
+                    correct: "Benar! Dilatasi dengan faktor skala 1 berarti titik tidak berubah. Jadi (-1,2) tetap (-1,2).",
+                    incorrect: "Salah. Dilatasi dengan faktor skala 1 berarti titik tidak berubah."
+                }
+            };
+
+            let lastSubmissionTime = null;
+            let lastSubmissionResults = [];
+
+            function checkPrintButtonVisibility() {
+                const storedTime = localStorage.getItem('lastLatihanSubmissionTime');
+                const storedResults = localStorage.getItem('lastLatihanSubmissionResults');
+                const printBtn = document.getElementById('print-latihan-btn');
+
+                if (storedTime && storedResults) {
+                    const submissionTimestamp = parseInt(storedTime, 10);
+                    const oneDay = 24 * 60 * 60 * 1000;
+                    const currentTime = Date.now();
+
+                    if (currentTime - submissionTimestamp <= oneDay) {
+                        printBtn.classList.remove('hidden');
+                        lastSubmissionTime = submissionTimestamp;
+                        lastSubmissionResults = JSON.parse(storedResults);
+                    } else {
+                        printBtn.classList.add('hidden');
+                        localStorage.removeItem('lastLatihanSubmissionTime');
+                        localStorage.removeItem('lastLatihanSubmissionResults');
+                        lastSubmissionTime = null;
+                        lastSubmissionResults = [];
+                    }
+                } else {
+                    printBtn.classList.add('hidden');
+                }
+            }
+
+            submitLatihanBtn.addEventListener('click', () => {
+                let score = 0;
+                let allAnswered = true;
+                const currentResults = [];
+
+                for (let i = 1; i <= 20; i++) {
+                    const questionName = `q${i}`;
+                    const questionText = document.querySelector(`#question-${i}-container .latihan-question`).textContent.trim();
+                    const selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+                    const feedbackDiv = document.getElementById(`feedback-${questionName}`);
+                    
+                    feedbackDiv.textContent = '';
+                    feedbackDiv.className = 'feedback-message';
+                    feedbackDiv.style.display = 'none';
+
+                    let userAnswerText = "Tidak dijawab";
+                    let isCorrect = false;
+
+                    if (selectedOption) {
+                        const userAnswer = selectedOption.value;
+                        userAnswerText = document.querySelector(`label.latihan-radio-label input[value="${userAnswer}"] + span`).textContent.trim();
+
+                        if (userAnswer === correctAnswers[questionName]) {
+                            score++;
+                            isCorrect = true;
+                            feedbackDiv.textContent = `Jawaban Anda Benar! ${answerExplanations[questionName].correct}`;
+                            feedbackDiv.classList.add('correct');
+                        } else {
+                            feedbackDiv.textContent = `Jawaban Anda Salah. ${answerExplanations[questionName].incorrect}`;
+                            feedbackDiv.classList.add('incorrect');
+                        }
+                        feedbackDiv.style.display = 'block';
+                    } else {
+                        allAnswered = false;
+                        feedbackDiv.textContent = 'Anda belum menjawab soal ini.';
+                        feedbackDiv.classList.add('incorrect');
+                        feedbackDiv.style.display = 'block';
+                    }
+
+                    currentResults.push({
+                        question: questionText,
+                        userAnswer: userAnswerText,
+                        correctAnswer: document.querySelector(`label.latihan-radio-label input[value="${correctAnswers[questionName]}"] + span`).textContent.trim(),
+                        isCorrect: isCorrect,
+                        feedback: feedbackDiv.textContent
+                    });
+                }
+
+                if (!allAnswered) {
+                    latihanResult.textContent = 'Silakan jawab semua soal terlebih dahulu.';
+                    latihanResult.classList.remove('text-green-600');
+                    latihanResult.classList.add('text-red-600');
+                    printLatihanBtn.classList.add('hidden');
+                } else {
+                    lastSubmissionTime = Date.now();
+                    lastSubmissionResults = {
+                        score: score,
+                        totalQuestions: 20,
+                        results: currentResults,
+                        submissionDate: new Date(lastSubmissionTime).toLocaleString('id-ID')
+                    };
+                    localStorage.setItem('lastLatihanSubmissionTime', lastSubmissionTime.toString());
+                    localStorage.setItem('lastLatihanSubmissionResults', JSON.stringify(lastSubmissionResults));
+
+                    if (score === 20) {
+                        latihanResult.textContent = `Selamat! Anda menjawab semua soal dengan benar (${score}/20).`;
+                        latihanResult.classList.remove('text-red-600');
+                        latihanResult.classList.add('text-green-600');
+                    } else {
+                        latihanResult.textContent = `Anda menjawab benar ${score} dari 20 soal. Silakan coba lagi.`;
+                        latihanResult.classList.remove('text-green-600');
+                        latihanResult.classList.add('text-red-600');
+                    }
+                    printLatihanBtn.classList.remove('hidden');
+                }
+            });
+
+            printLatihanBtn.addEventListener('click', () => {
+                if (!lastSubmissionResults || !lastSubmissionTime) {
+                    alert("Tidak ada hasil pengerjaan yang tersedia untuk dicetak atau sudah melewati batas waktu 1 hari.");
+                    return;
+                }
+
+                const submissionTimestamp = parseInt(localStorage.getItem('lastLatihanSubmissionTime'), 10);
+                const oneDay = 24 * 60 * 60 * 1000;
+                const currentTime = Date.now();
+
+                if (currentTime - submissionTimestamp > oneDay) {
+                    alert("Batas waktu untuk mencetak hasil pengerjaan (1 hari) telah berakhir.");
+                    printLatihanBtn.classList.add('hidden');
+                    localStorage.removeItem('lastLatihanSubmissionTime');
+                    localStorage.removeItem('lastLatihanSubmissionResults');
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                let y = 20;
+                const margin = 10;
+                const lineHeight = 7;
+                const pageWidth = doc.internal.pageSize.getWidth();
+
+                doc.setFontSize(16);
+                doc.text("Hasil Latihan Soal Geometri Transformasi", pageWidth / 2, y, { align: 'center' });
+                y += 10;
+
+                doc.setFontSize(12);
+                doc.text(`Tanggal Pengerjaan: ${lastSubmissionResults.submissionDate}`, margin, y);
+                y += lineHeight;
+                doc.text(`Skor Anda: ${lastSubmissionResults.score} / ${lastSubmissionResults.totalQuestions}`, margin, y);
+                y += lineHeight * 2;
+
+                doc.setFontSize(10);
+                lastSubmissionResults.results.forEach((res, index) => {
+                    if (y + lineHeight * 5 > doc.internal.pageSize.getHeight() - margin) {
+                        doc.addPage();
+                        y = margin;
+                    }
+                    doc.text(`${index + 1}. ${res.question}`, margin, y);
+                    y += lineHeight;
+                    doc.text(`   Jawaban Anda: ${res.userAnswer} ${res.isCorrect ? '(Benar)' : '(Salah)'}`, margin, y);
+                    y += lineHeight;
+                    doc.text(`   Jawaban Benar: ${res.correctAnswer}`, margin, y);
+                    y += lineHeight;
+                    doc.text(`   Feedback: ${res.feedback}`, margin, y);
+                    y += lineHeight * 2;
+                });
+
+                doc.save("Hasil_Latihan_Geometri_Transformasi.pdf");
+            });
+
+            checkPrintButtonVisibility();
+        });
+        
+    </script>
+    
+</body>
+</html>
